@@ -1,0 +1,18 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "announcement-bar",
+      "settings": {
+        "show_announcement": true,
+        "text": "Free shipping on all orders. 30-day money-back guarantee.",
+        "bg_color": "#1a3a2a",
+        "text_color": "#ffffff"
+      }
+    },
+    "product-hero": {
+      "type": "product-hero",
+      "settings": {}
+    }
+  },
+  "order": ["announcement", "product-hero"]
+}

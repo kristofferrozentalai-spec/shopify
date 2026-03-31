@@ -1,0 +1,567 @@
+{% assign product = all_products[section.settings.product] %}
+{% if product == blank %}
+  {% assign product = section.settings.product %}
+{% endif %}
+
+<section class="product-hero" id="product-hero">
+  <div class="product-hero__inner container">
+
+    {%- comment -%} ── LEFT: IMAGE GALLERY ── {%- endcomment -%}
+    <div class="product-gallery" id="product-gallery">
+      <div class="product-gallery__main">
+        {% if product != blank and product.images.size > 0 %}
+          {% for image in product.images %}
+            <div class="product-gallery__slide{% if forloop.first %} active{% endif %}" data-index="{{ forloop.index0 }}">
+              <img
+                src="{{ image | image_url: width: 900 }}"
+                alt="{{ image.alt | default: product.title | escape }}"
+                width="900"
+                height="900"
+                loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                class="product-gallery__image"
+              >
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="product-gallery__slide active">
+            {{ 'product-1' | placeholder_svg_tag: 'product-gallery__image product-gallery__image--placeholder' }}
+          </div>
+        {% endif %}
+
+        <button class="product-gallery__arrow product-gallery__arrow--prev" aria-label="Previous image">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="product-gallery__arrow product-gallery__arrow--next" aria-label="Next image">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      {% if product != blank and product.images.size > 1 %}
+        <div class="product-gallery__thumbs" role="list">
+          {% for image in product.images %}
+            <button
+              class="product-gallery__thumb{% if forloop.first %} active{% endif %}"
+              data-index="{{ forloop.index0 }}"
+              aria-label="View image {{ forloop.index }}"
+              role="listitem"
+            >
+              <img
+                src="{{ image | image_url: width: 120 }}"
+                alt="{{ image.alt | default: product.title | escape }}"
+                width="120"
+                height="120"
+                loading="lazy"
+              >
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    {%- comment -%} ── RIGHT: PURCHASE PANEL ── {%- endcomment -%}
+    <div class="product-purchase" id="product-purchase">
+
+      {%- comment -%} Social proof {%- endcomment -%}
+      {% if section.settings.show_reviews %}
+        <div class="product-purchase__reviews">
+          <div class="product-purchase__stars" aria-label="{{ section.settings.review_score }} out of 5 stars">
+            {% assign full_stars = section.settings.review_score | floor %}
+            {% for i in (1..5) %}
+              {% if i <= full_stars %}
+                <svg class="star star--full" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              {% else %}
+                <svg class="star star--empty" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <span class="product-purchase__review-count">{{ section.settings.review_count }} {{ section.settings.review_label }}</span>
+        </div>
+      {% endif %}
+
+      {%- comment -%} Product tabs (variant groups) {%- endcomment -%}
+      {% if section.settings.show_tabs and section.settings.tab_1_label != blank %}
+        <div class="product-tabs" role="tablist">
+          <button class="product-tab active" role="tab" aria-selected="true" data-tab="tab-1">
+            {{ section.settings.tab_1_label }}
+          </button>
+          {% if section.settings.tab_2_label != blank %}
+            <button class="product-tab" role="tab" aria-selected="false" data-tab="tab-2">
+              {{ section.settings.tab_2_label }}
+            </button>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {%- comment -%} Promo text {%- endcomment -%}
+      {% if section.settings.promo_text != blank %}
+        <p class="product-purchase__promo">{{ section.settings.promo_text }}</p>
+      {% endif %}
+
+      {%- comment -%} Bundle / subscription options {%- endcomment -%}
+      <form action="{{ routes.cart_add_url }}" method="post" class="product-form" id="product-form" novalidate>
+
+        <div class="bundle-options" role="radiogroup" aria-label="Choose your bundle">
+
+          {%- comment -%} — Subscription options — {%- endcomment -%}
+          {% for i in (1..3) %}
+            {% assign label_key    = 'bundle_' | append: i | append: '_label' %}
+            {% assign sublabel_key = 'bundle_' | append: i | append: '_sublabel' %}
+            {% assign badge_key    = 'bundle_' | append: i | append: '_badge' %}
+            {% assign price_key    = 'bundle_' | append: i | append: '_price' %}
+            {% assign orig_key     = 'bundle_' | append: i | append: '_original_price' %}
+            {% assign unit_key     = 'bundle_' | append: i | append: '_unit_price' %}
+            {% assign perks_key    = 'bundle_' | append: i | append: '_perks' %}
+            {% assign variant_key  = 'bundle_' | append: i | append: '_variant_id' %}
+            {% assign enabled_key  = 'bundle_' | append: i | append: '_enabled' %}
+
+            {% assign label    = section.settings[label_key] %}
+            {% assign enabled  = section.settings[enabled_key] %}
+
+            {% if label != blank and enabled %}
+              {% assign sublabel   = section.settings[sublabel_key] %}
+              {% assign badge      = section.settings[badge_key] %}
+              {% assign price      = section.settings[price_key] %}
+              {% assign orig_price = section.settings[orig_key] %}
+              {% assign unit_price = section.settings[unit_key] %}
+              {% assign perks      = section.settings[perks_key] %}
+              {% assign variant_id = section.settings[variant_key] %}
+
+              <label class="bundle-option{% if i == 1 %} bundle-option--selected{% endif %}" data-bundle="{{ i }}">
+                <input
+                  type="radio"
+                  name="bundle_choice"
+                  value="{{ i }}"
+                  data-variant-id="{{ variant_id }}"
+                  {% if i == 1 %}checked{% endif %}
+                  class="bundle-option__radio"
+                >
+                <div class="bundle-option__inner">
+                  <div class="bundle-option__header">
+                    <div class="bundle-option__radio-indicator"></div>
+                    <div class="bundle-option__title-group">
+                      <span class="bundle-option__label">{{ label }}</span>
+                      {% if badge != blank %}
+                        <span class="bundle-option__badge">{{ badge }}</span>
+                      {% endif %}
+                    </div>
+                    <div class="bundle-option__pricing">
+                      {% if orig_price != blank %}
+                        <span class="bundle-option__original-price">{{ orig_price }}</span>
+                      {% endif %}
+                      <span class="bundle-option__price">{{ price }}</span>
+                    </div>
+                  </div>
+                  {% if sublabel != blank or unit_price != blank %}
+                    <div class="bundle-option__meta">
+                      {% if sublabel != blank %}
+                        <span class="bundle-option__sublabel">{{ sublabel }}</span>
+                      {% endif %}
+                      {% if unit_price != blank %}
+                        <span class="bundle-option__unit-price">{{ unit_price }}</span>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  {% if perks != blank and i == 1 %}
+                    <ul class="bundle-option__perks" id="bundle-perks-{{ i }}">
+                      {% assign perks_list = perks | split: '|' %}
+                      {% for perk in perks_list %}
+                        {% unless perk == blank %}
+                          <li class="bundle-option__perk">
+                            <svg class="perk-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            {{ perk | strip }}
+                          </li>
+                        {% endunless %}
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </div>
+              </label>
+            {% endif %}
+          {% endfor %}
+
+          {%- comment -%} — One-time purchase divider — {%- endcomment -%}
+          {% if section.settings.show_one_time %}
+            <div class="bundle-divider">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              <span>{{ section.settings.divider_text | default: 'OR' }}</span>
+            </div>
+
+            <label class="bundle-option bundle-option--one-time" data-bundle="one-time">
+              <input
+                type="radio"
+                name="bundle_choice"
+                value="one-time"
+                data-variant-id="{{ section.settings.one_time_variant_id }}"
+                class="bundle-option__radio"
+              >
+              <div class="bundle-option__inner">
+                <div class="bundle-option__header">
+                  <div class="bundle-option__radio-indicator"></div>
+                  <span class="bundle-option__label">{{ section.settings.one_time_label | default: 'One-time purchase' }}</span>
+                  <div class="bundle-option__pricing">
+                    <span class="bundle-option__price">{{ section.settings.one_time_price }}</span>
+                  </div>
+                </div>
+                {% if section.settings.one_time_unit_price != blank %}
+                  <div class="bundle-option__meta">
+                    <span class="bundle-option__unit-price">{{ section.settings.one_time_unit_price }}</span>
+                  </div>
+                {% endif %}
+              </div>
+            </label>
+          {% endif %}
+
+        </div><!-- /.bundle-options -->
+
+        <input type="hidden" name="id" id="selected-variant-id" value="{{ section.settings.bundle_1_variant_id }}">
+        <input type="hidden" name="quantity" value="1">
+
+        <button
+          type="submit"
+          class="btn-add-to-cart"
+          id="add-to-cart-btn"
+          {% if product != blank and product.available == false %}disabled{% endif %}
+        >
+          {{ section.settings.cta_text | default: 'Subscribe now' }}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+
+        <div class="product-trust">
+          {% if section.settings.trust_1 != blank %}
+            <span class="product-trust__item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ section.settings.trust_1 }}
+            </span>
+          {% endif %}
+          {% if section.settings.trust_2 != blank %}
+            <span class="product-trust__item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ section.settings.trust_2 }}
+            </span>
+          {% endif %}
+        </div>
+
+        {% if section.settings.legal_text != blank %}
+          <p class="product-legal">{{ section.settings.legal_text }}</p>
+        {% endif %}
+
+      </form>
+    </div><!-- /.product-purchase -->
+
+  </div><!-- /.product-hero__inner -->
+</section>
+
+{% schema %}
+{
+  "name": "Product Hero",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "header",
+      "content": "Reviews"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show star reviews",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "review_score",
+      "label": "Star rating",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "text",
+      "id": "review_count",
+      "label": "Review count",
+      "default": "50,000+"
+    },
+    {
+      "type": "text",
+      "id": "review_label",
+      "label": "Review label",
+      "default": "5-star reviews"
+    },
+    {
+      "type": "header",
+      "content": "Product Tabs"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tabs",
+      "label": "Show product tabs",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tab_1_label",
+      "label": "Tab 1 label",
+      "default": "The Pouch"
+    },
+    {
+      "type": "text",
+      "id": "tab_2_label",
+      "label": "Tab 2 label",
+      "default": "Travel Packs"
+    },
+    {
+      "type": "header",
+      "content": "Promo Text"
+    },
+    {
+      "type": "richtext",
+      "id": "promo_text",
+      "label": "Promotional text",
+      "default": "<p><strong>Only 90 days until summer:</strong> Try our product now – get 10% off your first 3 months, plus 5 Travel Packs and a Welcome Kit FREE, worth $95.**</p>"
+    },
+    {
+      "type": "header",
+      "content": "Bundle 1 (Subscription)"
+    },
+    {
+      "type": "checkbox",
+      "id": "bundle_1_enabled",
+      "label": "Enable bundle 1",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_label",
+      "label": "Label",
+      "default": "Single subscription"
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_sublabel",
+      "label": "Sub-label",
+      "default": "30 servings per pouch."
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_badge",
+      "label": "Badge text",
+      "default": "Most popular"
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_price",
+      "label": "Price",
+      "default": "$78.80"
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_original_price",
+      "label": "Original price (crossed out)",
+      "default": "$87†"
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_unit_price",
+      "label": "Unit price",
+      "default": "$2.90 / serving"
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_1_perks",
+      "label": "Perks list (separate with |)",
+      "default": "10% off your first 3 months**|Free Vitamin D3+K2 & 5 Travel Packs**|Free Welcome Kit on first order**|Free shipping on all orders**"
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_variant_id",
+      "label": "Shopify variant ID"
+    },
+    {
+      "type": "header",
+      "content": "Bundle 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "bundle_2_enabled",
+      "label": "Enable bundle 2",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_label",
+      "label": "Label",
+      "default": "Double subscription"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_sublabel",
+      "label": "Sub-label",
+      "default": "60 servings total"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_badge",
+      "label": "Badge text",
+      "default": "Best value"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_price",
+      "label": "Price",
+      "default": "$150.30"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_original_price",
+      "label": "Original price (crossed out)",
+      "default": "$167†"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_unit_price",
+      "label": "Unit price",
+      "default": "$2.78 / serving"
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_2_perks",
+      "label": "Perks list (separate with |)"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_variant_id",
+      "label": "Shopify variant ID"
+    },
+    {
+      "type": "header",
+      "content": "Bundle 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "bundle_3_enabled",
+      "label": "Enable bundle 3",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_label",
+      "label": "Label"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_sublabel",
+      "label": "Sub-label"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_badge",
+      "label": "Badge text"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_price",
+      "label": "Price"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_original_price",
+      "label": "Original price (crossed out)"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_unit_price",
+      "label": "Unit price"
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_3_perks",
+      "label": "Perks list (separate with |)"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_variant_id",
+      "label": "Shopify variant ID"
+    },
+    {
+      "type": "header",
+      "content": "One-Time Purchase"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_one_time",
+      "label": "Show one-time purchase option",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "divider_text",
+      "label": "Divider text",
+      "default": "OR"
+    },
+    {
+      "type": "text",
+      "id": "one_time_label",
+      "label": "One-time label",
+      "default": "One-time purchase"
+    },
+    {
+      "type": "text",
+      "id": "one_time_price",
+      "label": "One-time price",
+      "default": "$107"
+    },
+    {
+      "type": "text",
+      "id": "one_time_unit_price",
+      "label": "One-time unit price",
+      "default": "$3.57 / serving"
+    },
+    {
+      "type": "text",
+      "id": "one_time_variant_id",
+      "label": "One-time Shopify variant ID"
+    },
+    {
+      "type": "header",
+      "content": "CTA & Trust"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA button text",
+      "default": "Subscribe now"
+    },
+    {
+      "type": "text",
+      "id": "trust_1",
+      "label": "Trust badge 1",
+      "default": "Flexible subscription"
+    },
+    {
+      "type": "text",
+      "id": "trust_2",
+      "label": "Trust badge 2",
+      "default": "30-day money-back guarantee"
+    },
+    {
+      "type": "textarea",
+      "id": "legal_text",
+      "label": "Legal / disclaimer text"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Hero"
+    }
+  ]
+}
+{% endschema %}

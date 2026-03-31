@@ -1,0 +1,27 @@
+{
+  "general": {
+    "meta": {
+      "page": "Page {{ page }}"
+    }
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to cart",
+      "subscribe_now": "Subscribe now",
+      "sold_out": "Sold out",
+      "unavailable": "Unavailable",
+      "one_time_purchase": "One-time purchase",
+      "subscribe_save": "Subscribe & Save",
+      "most_popular": "Most popular",
+      "best_value": "Best value",
+      "per_unit": "per unit",
+      "free_shipping": "Free shipping on all orders",
+      "money_back": "30-day money-back guarantee"
+    }
+  },
+  "cart": {
+    "general": {
+      "title": "Your cart"
+    }
+  }
+}
