@@ -28,6 +28,7 @@
         "settings": {
           "logo": "shopify://shop_images/Untitled_design.png",
           "logo_width": 120,
+          "logo_alignment": "center",
           "menu": "main-menu"
         }
       },
@@ -37,6 +38,10 @@
           "tagline": "Premium quality, delivered.",
           "footer_menu": "footer"
         }
+      },
+      "cart-drawer": {
+        "type": "cart-drawer",
+        "settings": {}
       }
     },
     "content_for_index": []
