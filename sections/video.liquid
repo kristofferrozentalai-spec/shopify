@@ -1,0 +1,72 @@
+<div class="video-section section-spacing" style="background: {{ section.settings.bg_color }};">
+  <div class="container" style="max-width: {{ section.settings.content_width }}px;">
+    {% if section.settings.title != blank %}
+      <div class="section-header" style="text-align: center;">
+        <h2 class="section-heading">{{ section.settings.title }}</h2>
+      </div>
+    {% endif %}
+    {% if section.settings.video_url != blank %}
+      <div class="video-section__wrapper">
+        {%- assign video_url = section.settings.video_url -%}
+        {%- if video_url.type == 'youtube' -%}
+          <iframe
+            src="https://www.youtube.com/embed/{{ video_url.id }}?autoplay=0&rel=0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen
+            loading="lazy"
+            title="{{ section.settings.title | escape }}"
+          ></iframe>
+        {%- elsif video_url.type == 'vimeo' -%}
+          <iframe
+            src="https://player.vimeo.com/video/{{ video_url.id }}"
+            allow="autoplay; fullscreen"
+            allowfullscreen
+            loading="lazy"
+            title="{{ section.settings.title | escape }}"
+          ></iframe>
+        {%- endif -%}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Video",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading"
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "label": "Video URL",
+      "accept": ["youtube", "vimeo"],
+      "info": "Paste a YouTube or Vimeo URL"
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "Max width (px)",
+      "min": 500,
+      "max": 1200,
+      "step": 20,
+      "default": 900
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video"
+    }
+  ]
+}
+{% endschema %}

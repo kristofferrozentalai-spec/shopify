@@ -315,3 +315,32 @@
     initCartForm();
   });
 })();
+
+/* ── ACCORDION (Collapsible Content / FAQ) ── */
+(function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.accordion__trigger').forEach(function (trigger) {
+      trigger.addEventListener('click', function () {
+        var expanded = trigger.getAttribute('aria-expanded') === 'true';
+        var bodyId = trigger.getAttribute('aria-controls');
+        var body = document.getElementById(bodyId);
+
+        // Wrap content for grid-row animation if not already wrapped
+        if (body && !body.querySelector(':scope > div')) {
+          var inner = document.createElement('div');
+          while (body.firstChild) inner.appendChild(body.firstChild);
+          body.appendChild(inner);
+        }
+
+        trigger.setAttribute('aria-expanded', !expanded);
+        if (body) {
+          if (expanded) {
+            body.setAttribute('hidden', '');
+          } else {
+            body.removeAttribute('hidden');
+          }
+        }
+      });
+    });
+  });
+})();

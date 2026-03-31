@@ -1,0 +1,109 @@
+<div class="multicolumn section-spacing" style="background: {{ section.settings.bg_color }};">
+  <div class="container">
+    {% if section.settings.title != blank %}
+      <div class="section-header" style="text-align: {{ section.settings.heading_alignment }};">
+        {% if section.settings.subheading != blank %}
+          <p class="section-subheading">{{ section.settings.subheading }}</p>
+        {% endif %}
+        <h2 class="section-heading">{{ section.settings.title }}</h2>
+      </div>
+    {% endif %}
+
+    <div class="multicolumn__grid multicolumn__grid--{{ section.blocks.size }}">
+      {% for block in section.blocks %}
+        <div class="multicolumn__item" {{ block.shopify_attributes }}>
+          {% if block.settings.icon != blank %}
+            <div class="multicolumn__icon">
+              <img src="{{ block.settings.icon | image_url: width: 80 }}" alt="{{ block.settings.title | escape }}" width="60" height="60" loading="lazy">
+            </div>
+          {% elsif block.settings.icon_emoji != blank %}
+            <div class="multicolumn__icon multicolumn__icon--emoji">{{ block.settings.icon_emoji }}</div>
+          {% endif %}
+          {% if block.settings.title != blank %}
+            <h3 class="multicolumn__title">{{ block.settings.title }}</h3>
+          {% endif %}
+          {% if block.settings.text != blank %}
+            <div class="multicolumn__text rte">{{ block.settings.text }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Multicolumn",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "column",
+      "name": "Column",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon image"
+        },
+        {
+          "type": "text",
+          "id": "icon_emoji",
+          "label": "Or use an emoji icon",
+          "info": "Used only if no icon image is set"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Feature title"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Description",
+          "default": "<p>Share a key feature or benefit of your product.</p>"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Why choose us"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left",   "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#f5f3ef"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Multicolumn",
+      "blocks": [
+        { "type": "column", "settings": { "icon_emoji": "🌿", "title": "Natural ingredients", "text": "<p>Made with the finest natural ingredients.</p>" } },
+        { "type": "column", "settings": { "icon_emoji": "🔬", "title": "Clinically tested",   "text": "<p>Backed by rigorous scientific research.</p>" } },
+        { "type": "column", "settings": { "icon_emoji": "📦", "title": "Free shipping",        "text": "<p>Free shipping on every order, always.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

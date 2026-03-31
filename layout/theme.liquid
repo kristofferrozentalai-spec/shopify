@@ -11,6 +11,42 @@
   {% endif %}
   {{ content_for_header }}
   {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+  {%- comment -%} Inject theme settings as CSS custom properties {%- endcomment -%}
+  <style>
+    :root {
+      --color-primary:    {{ settings.color_primary }};
+      --color-secondary:  {{ settings.color_secondary }};
+      --color-accent:     {{ settings.color_accent }};
+      --color-bg:         {{ settings.color_background }};
+      --color-bg-card:    {{ settings.color_surface }};
+      --color-text:       {{ settings.color_text }};
+      --color-muted:      {{ settings.color_text_muted }};
+      --color-border:     {{ settings.color_border }};
+      --color-star:       {{ settings.color_star }};
+      --color-btn-primary-bg:   {{ settings.button_primary_bg }};
+      --color-btn-primary-text: {{ settings.button_primary_text }};
+      --color-btn-secondary-bg:   {{ settings.button_secondary_bg }};
+      --color-btn-secondary-text: {{ settings.button_secondary_text }};
+      --page-width:       {{ settings.page_width }}px;
+      --spacing-sections: {{ settings.spacing_sections }}px;
+      --radius-btn:       {{ settings.border_radius_buttons }}px;
+      --radius-card:      {{ settings.border_radius_cards }}px;
+      --font-size-body:   {{ settings.font_size_body }}px;
+    }
+    {% if settings.custom_css != blank %}{{ settings.custom_css }}{% endif %}
+  </style>
+
+  {%- if settings.font_body.system? == false -%}
+    {{ settings.font_body | font_face: font_display: 'swap' }}
+  {%- endif -%}
+  {%- if settings.font_heading.system? == false -%}
+    {{ settings.font_heading | font_face: font_display: 'swap' }}
+  {%- endif -%}
+
+  {% if settings.favicon != blank %}
+    <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32 }}">
+  {% endif %}
 </head>
 <body class="template-{{ template.name }}">
   {% section 'announcement-bar' %}
