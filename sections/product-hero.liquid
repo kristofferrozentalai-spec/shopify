@@ -1,6 +1,24 @@
 {% assign product = all_products[section.settings.product] %}
-{% if product == blank %}
-  {% assign product = section.settings.product %}
+
+{%- comment -%}
+  Pre-resolve each bundle's Shopify variant from the product by index.
+  Bundle index is 1-based in settings (1 = first variant, 2 = second, etc.).
+  Falls back gracefully if the product has fewer variants than configured.
+{%- endcomment -%}
+{% assign b1_idx = section.settings.bundle_1_variant_index | minus: 1 %}
+{% assign b2_idx = section.settings.bundle_2_variant_index | minus: 1 %}
+{% assign b3_idx = section.settings.bundle_3_variant_index | minus: 1 %}
+{% assign ot_idx = section.settings.one_time_variant_index | minus: 1 %}
+
+{% if product != blank %}
+  {% assign b1_variant = product.variants[b1_idx] %}
+  {% assign b2_variant = product.variants[b2_idx] %}
+  {% assign b3_variant = product.variants[b3_idx] %}
+  {% assign ot_variant = product.variants[ot_idx] %}
+  {%- comment -%} Default hidden input = first enabled bundle variant {%- endcomment -%}
+  {% assign default_variant_id = b1_variant.id %}
+{% else %}
+  {% assign default_variant_id = '' %}
 {% endif %}
 
 <section class="product-hero" id="product-hero">
@@ -78,7 +96,7 @@
         </div>
       {% endif %}
 
-      {%- comment -%} Product tabs (variant groups) {%- endcomment -%}
+      {%- comment -%} Product tabs {%- endcomment -%}
       {% if section.settings.show_tabs and section.settings.tab_1_label != blank %}
         <div class="product-tabs" role="tablist">
           <button class="product-tab active" role="tab" aria-selected="true" data-tab="tab-1">
@@ -94,7 +112,7 @@
 
       {%- comment -%} Promo text {%- endcomment -%}
       {% if section.settings.promo_text != blank %}
-        <p class="product-purchase__promo">{{ section.settings.promo_text }}</p>
+        <div class="product-purchase__promo">{{ section.settings.promo_text }}</div>
       {% endif %}
 
       {%- comment -%} Bundle / subscription options {%- endcomment -%}
@@ -102,104 +120,186 @@
 
         <div class="bundle-options" role="radiogroup" aria-label="Choose your bundle">
 
-          {%- comment -%} — Subscription options — {%- endcomment -%}
-          {% for i in (1..3) %}
-            {% assign label_key    = 'bundle_' | append: i | append: '_label' %}
-            {% assign sublabel_key = 'bundle_' | append: i | append: '_sublabel' %}
-            {% assign badge_key    = 'bundle_' | append: i | append: '_badge' %}
-            {% assign price_key    = 'bundle_' | append: i | append: '_price' %}
-            {% assign orig_key     = 'bundle_' | append: i | append: '_original_price' %}
-            {% assign unit_key     = 'bundle_' | append: i | append: '_unit_price' %}
-            {% assign perks_key    = 'bundle_' | append: i | append: '_perks' %}
-            {% assign variant_key  = 'bundle_' | append: i | append: '_variant_id' %}
-            {% assign enabled_key  = 'bundle_' | append: i | append: '_enabled' %}
-
-            {% assign label    = section.settings[label_key] %}
-            {% assign enabled  = section.settings[enabled_key] %}
-
-            {% if label != blank and enabled %}
-              {% assign sublabel   = section.settings[sublabel_key] %}
-              {% assign badge      = section.settings[badge_key] %}
-              {% assign price      = section.settings[price_key] %}
-              {% assign orig_price = section.settings[orig_key] %}
-              {% assign unit_price = section.settings[unit_key] %}
-              {% assign perks      = section.settings[perks_key] %}
-              {% assign variant_id = section.settings[variant_key] %}
-
-              <label class="bundle-option{% if i == 1 %} bundle-option--selected{% endif %}" data-bundle="{{ i }}">
-                <input
-                  type="radio"
-                  name="bundle_choice"
-                  value="{{ i }}"
-                  data-variant-id="{{ variant_id }}"
-                  {% if i == 1 %}checked{% endif %}
-                  class="bundle-option__radio"
-                >
-                <div class="bundle-option__inner">
-                  <div class="bundle-option__header">
-                    <div class="bundle-option__radio-indicator"></div>
-                    <div class="bundle-option__title-group">
-                      <span class="bundle-option__label">{{ label }}</span>
-                      {% if badge != blank %}
-                        <span class="bundle-option__badge">{{ badge }}</span>
-                      {% endif %}
-                    </div>
-                    <div class="bundle-option__pricing">
-                      {% if orig_price != blank %}
-                        <span class="bundle-option__original-price">{{ orig_price }}</span>
-                      {% endif %}
-                      <span class="bundle-option__price">{{ price }}</span>
-                    </div>
+          {%- comment -%}
+            Bundle 1
+          {%- endcomment -%}
+          {% if section.settings.bundle_1_enabled and section.settings.bundle_1_label != blank %}
+            {%- assign b1_vid = b1_variant.id | default: '' -%}
+            <label class="bundle-option bundle-option--selected" data-bundle="1">
+              <input type="radio" name="bundle_choice" value="1"
+                data-variant-id="{{ b1_vid }}"
+                checked
+                class="bundle-option__radio">
+              <div class="bundle-option__inner">
+                <div class="bundle-option__header">
+                  <div class="bundle-option__radio-indicator"></div>
+                  <div class="bundle-option__title-group">
+                    <span class="bundle-option__label">{{ section.settings.bundle_1_label }}</span>
+                    {% if section.settings.bundle_1_badge != blank %}
+                      <span class="bundle-option__badge">{{ section.settings.bundle_1_badge }}</span>
+                    {% endif %}
                   </div>
-                  {% if sublabel != blank or unit_price != blank %}
-                    <div class="bundle-option__meta">
-                      {% if sublabel != blank %}
-                        <span class="bundle-option__sublabel">{{ sublabel }}</span>
+                  <div class="bundle-option__pricing">
+                    {% if section.settings.bundle_1_original_price != blank %}
+                      <span class="bundle-option__original-price">{{ section.settings.bundle_1_original_price }}</span>
+                    {% endif %}
+                    <span class="bundle-option__price">
+                      {% if section.settings.bundle_1_price != blank %}
+                        {{ section.settings.bundle_1_price }}
+                      {% elsif b1_variant %}
+                        {{ b1_variant.price | money }}
                       {% endif %}
-                      {% if unit_price != blank %}
-                        <span class="bundle-option__unit-price">{{ unit_price }}</span>
-                      {% endif %}
-                    </div>
-                  {% endif %}
-                  {% if perks != blank and i == 1 %}
-                    <ul class="bundle-option__perks" id="bundle-perks-{{ i }}">
-                      {% assign perks_list = perks | split: '|' %}
-                      {% for perk in perks_list %}
-                        {% unless perk == blank %}
-                          <li class="bundle-option__perk">
-                            <svg class="perk-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                            {{ perk | strip }}
-                          </li>
-                        {% endunless %}
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
+                    </span>
+                  </div>
                 </div>
-              </label>
-            {% endif %}
-          {% endfor %}
+                {% if section.settings.bundle_1_sublabel != blank or section.settings.bundle_1_unit_price != blank %}
+                  <div class="bundle-option__meta">
+                    <span class="bundle-option__sublabel">{{ section.settings.bundle_1_sublabel }}</span>
+                    {% if section.settings.bundle_1_unit_price != blank %}
+                      <span class="bundle-option__unit-price">{{ section.settings.bundle_1_unit_price }}</span>
+                    {% endif %}
+                  </div>
+                {% endif %}
+                {% if section.settings.bundle_1_perks != blank %}
+                  <ul class="bundle-option__perks">
+                    {% assign perks_list = section.settings.bundle_1_perks | split: '|' %}
+                    {% for perk in perks_list %}
+                      {% unless perk == blank %}
+                        <li class="bundle-option__perk">
+                          <svg class="perk-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          {{ perk | strip }}
+                        </li>
+                      {% endunless %}
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
+            </label>
+          {% endif %}
+
+          {%- comment -%}
+            Bundle 2
+          {%- endcomment -%}
+          {% if section.settings.bundle_2_enabled and section.settings.bundle_2_label != blank %}
+            {%- assign b2_vid = b2_variant.id | default: '' -%}
+            <label class="bundle-option" data-bundle="2">
+              <input type="radio" name="bundle_choice" value="2"
+                data-variant-id="{{ b2_vid }}"
+                class="bundle-option__radio">
+              <div class="bundle-option__inner">
+                <div class="bundle-option__header">
+                  <div class="bundle-option__radio-indicator"></div>
+                  <div class="bundle-option__title-group">
+                    <span class="bundle-option__label">{{ section.settings.bundle_2_label }}</span>
+                    {% if section.settings.bundle_2_badge != blank %}
+                      <span class="bundle-option__badge">{{ section.settings.bundle_2_badge }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="bundle-option__pricing">
+                    {% if section.settings.bundle_2_original_price != blank %}
+                      <span class="bundle-option__original-price">{{ section.settings.bundle_2_original_price }}</span>
+                    {% endif %}
+                    <span class="bundle-option__price">
+                      {% if section.settings.bundle_2_price != blank %}
+                        {{ section.settings.bundle_2_price }}
+                      {% elsif b2_variant %}
+                        {{ b2_variant.price | money }}
+                      {% endif %}
+                    </span>
+                  </div>
+                </div>
+                {% if section.settings.bundle_2_sublabel != blank or section.settings.bundle_2_unit_price != blank %}
+                  <div class="bundle-option__meta">
+                    <span class="bundle-option__sublabel">{{ section.settings.bundle_2_sublabel }}</span>
+                    {% if section.settings.bundle_2_unit_price != blank %}
+                      <span class="bundle-option__unit-price">{{ section.settings.bundle_2_unit_price }}</span>
+                    {% endif %}
+                  </div>
+                {% endif %}
+                {% if section.settings.bundle_2_perks != blank %}
+                  <ul class="bundle-option__perks">
+                    {% assign perks_list = section.settings.bundle_2_perks | split: '|' %}
+                    {% for perk in perks_list %}
+                      {% unless perk == blank %}
+                        <li class="bundle-option__perk">
+                          <svg class="perk-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          {{ perk | strip }}
+                        </li>
+                      {% endunless %}
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
+            </label>
+          {% endif %}
+
+          {%- comment -%}
+            Bundle 3
+          {%- endcomment -%}
+          {% if section.settings.bundle_3_enabled and section.settings.bundle_3_label != blank %}
+            {%- assign b3_vid = b3_variant.id | default: '' -%}
+            <label class="bundle-option" data-bundle="3">
+              <input type="radio" name="bundle_choice" value="3"
+                data-variant-id="{{ b3_vid }}"
+                class="bundle-option__radio">
+              <div class="bundle-option__inner">
+                <div class="bundle-option__header">
+                  <div class="bundle-option__radio-indicator"></div>
+                  <div class="bundle-option__title-group">
+                    <span class="bundle-option__label">{{ section.settings.bundle_3_label }}</span>
+                    {% if section.settings.bundle_3_badge != blank %}
+                      <span class="bundle-option__badge">{{ section.settings.bundle_3_badge }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="bundle-option__pricing">
+                    {% if section.settings.bundle_3_original_price != blank %}
+                      <span class="bundle-option__original-price">{{ section.settings.bundle_3_original_price }}</span>
+                    {% endif %}
+                    <span class="bundle-option__price">
+                      {% if section.settings.bundle_3_price != blank %}
+                        {{ section.settings.bundle_3_price }}
+                      {% elsif b3_variant %}
+                        {{ b3_variant.price | money }}
+                      {% endif %}
+                    </span>
+                  </div>
+                </div>
+                {% if section.settings.bundle_3_sublabel != blank or section.settings.bundle_3_unit_price != blank %}
+                  <div class="bundle-option__meta">
+                    <span class="bundle-option__sublabel">{{ section.settings.bundle_3_sublabel }}</span>
+                    {% if section.settings.bundle_3_unit_price != blank %}
+                      <span class="bundle-option__unit-price">{{ section.settings.bundle_3_unit_price }}</span>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            </label>
+          {% endif %}
 
           {%- comment -%} — One-time purchase divider — {%- endcomment -%}
           {% if section.settings.show_one_time %}
+            {%- assign ot_vid = ot_variant.id | default: '' -%}
             <div class="bundle-divider">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
               <span>{{ section.settings.divider_text | default: 'OR' }}</span>
             </div>
 
             <label class="bundle-option bundle-option--one-time" data-bundle="one-time">
-              <input
-                type="radio"
-                name="bundle_choice"
-                value="one-time"
-                data-variant-id="{{ section.settings.one_time_variant_id }}"
-                class="bundle-option__radio"
-              >
+              <input type="radio" name="bundle_choice" value="one-time"
+                data-variant-id="{{ ot_vid }}"
+                class="bundle-option__radio">
               <div class="bundle-option__inner">
                 <div class="bundle-option__header">
                   <div class="bundle-option__radio-indicator"></div>
                   <span class="bundle-option__label">{{ section.settings.one_time_label | default: 'One-time purchase' }}</span>
                   <div class="bundle-option__pricing">
-                    <span class="bundle-option__price">{{ section.settings.one_time_price }}</span>
+                    <span class="bundle-option__price">
+                      {% if section.settings.one_time_price != blank %}
+                        {{ section.settings.one_time_price }}
+                      {% elsif ot_variant %}
+                        {{ ot_variant.price | money }}
+                      {% endif %}
+                    </span>
                   </div>
                 </div>
                 {% if section.settings.one_time_unit_price != blank %}
@@ -213,7 +313,8 @@
 
         </div><!-- /.bundle-options -->
 
-        <input type="hidden" name="id" id="selected-variant-id" value="{{ section.settings.bundle_1_variant_id }}">
+        {%- comment -%} Hidden input updated by JS on radio change {%- endcomment -%}
+        <input type="hidden" name="id" id="selected-variant-id" value="{{ default_variant_id }}">
         <input type="hidden" name="quantity" value="1">
 
         <button
@@ -264,6 +365,10 @@
       "type": "product",
       "id": "product",
       "label": "Product"
+    },
+    {
+      "type": "paragraph",
+      "content": "Make sure your product has variants set up in Shopify (e.g. 'Single', 'Double', 'One-Time'). Then map each bundle below to the correct variant by number (1 = first variant, 2 = second, etc.)."
     },
     {
       "type": "header",
@@ -326,7 +431,7 @@
       "type": "richtext",
       "id": "promo_text",
       "label": "Promotional text",
-      "default": "<p><strong>Only 90 days until summer:</strong> Try our product now – get 10% off your first 3 months, plus 5 Travel Packs and a Welcome Kit FREE, worth $95.**</p>"
+      "default": "<p><strong>Only 90 days until summer:</strong> Try our product now \u2013 get 10% off your first 3 months, plus 5 Travel Packs and a Welcome Kit FREE, worth $95.**</p>"
     },
     {
       "type": "header",
@@ -337,6 +442,16 @@
       "id": "bundle_1_enabled",
       "label": "Enable bundle 1",
       "default": true
+    },
+    {
+      "type": "range",
+      "id": "bundle_1_variant_index",
+      "label": "Product variant number",
+      "info": "Which variant of your product is this bundle? (1 = first variant)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 1
     },
     {
       "type": "text",
@@ -359,14 +474,14 @@
     {
       "type": "text",
       "id": "bundle_1_price",
-      "label": "Price",
+      "label": "Display price (leave blank to use Shopify price)",
       "default": "$78.80"
     },
     {
       "type": "text",
       "id": "bundle_1_original_price",
       "label": "Original price (crossed out)",
-      "default": "$87†"
+      "default": "$87\u2020"
     },
     {
       "type": "text",
@@ -381,11 +496,6 @@
       "default": "10% off your first 3 months**|Free Vitamin D3+K2 & 5 Travel Packs**|Free Welcome Kit on first order**|Free shipping on all orders**"
     },
     {
-      "type": "text",
-      "id": "bundle_1_variant_id",
-      "label": "Shopify variant ID"
-    },
-    {
       "type": "header",
       "content": "Bundle 2"
     },
@@ -394,6 +504,16 @@
       "id": "bundle_2_enabled",
       "label": "Enable bundle 2",
       "default": true
+    },
+    {
+      "type": "range",
+      "id": "bundle_2_variant_index",
+      "label": "Product variant number",
+      "info": "Which variant of your product is this bundle? (1 = first variant)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 2
     },
     {
       "type": "text",
@@ -416,14 +536,14 @@
     {
       "type": "text",
       "id": "bundle_2_price",
-      "label": "Price",
+      "label": "Display price (leave blank to use Shopify price)",
       "default": "$150.30"
     },
     {
       "type": "text",
       "id": "bundle_2_original_price",
       "label": "Original price (crossed out)",
-      "default": "$167†"
+      "default": "$167\u2020"
     },
     {
       "type": "text",
@@ -437,11 +557,6 @@
       "label": "Perks list (separate with |)"
     },
     {
-      "type": "text",
-      "id": "bundle_2_variant_id",
-      "label": "Shopify variant ID"
-    },
-    {
       "type": "header",
       "content": "Bundle 3"
     },
@@ -450,6 +565,16 @@
       "id": "bundle_3_enabled",
       "label": "Enable bundle 3",
       "default": false
+    },
+    {
+      "type": "range",
+      "id": "bundle_3_variant_index",
+      "label": "Product variant number",
+      "info": "Which variant of your product is this bundle? (1 = first variant)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 3
     },
     {
       "type": "text",
@@ -469,7 +594,7 @@
     {
       "type": "text",
       "id": "bundle_3_price",
-      "label": "Price"
+      "label": "Display price (leave blank to use Shopify price)"
     },
     {
       "type": "text",
@@ -487,11 +612,6 @@
       "label": "Perks list (separate with |)"
     },
     {
-      "type": "text",
-      "id": "bundle_3_variant_id",
-      "label": "Shopify variant ID"
-    },
-    {
       "type": "header",
       "content": "One-Time Purchase"
     },
@@ -500,6 +620,16 @@
       "id": "show_one_time",
       "label": "Show one-time purchase option",
       "default": true
+    },
+    {
+      "type": "range",
+      "id": "one_time_variant_index",
+      "label": "Product variant number",
+      "info": "Which variant of your product is the one-time purchase? (1 = first variant)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 3
     },
     {
       "type": "text",
@@ -516,19 +646,14 @@
     {
       "type": "text",
       "id": "one_time_price",
-      "label": "One-time price",
+      "label": "Display price (leave blank to use Shopify price)",
       "default": "$107"
     },
     {
       "type": "text",
       "id": "one_time_unit_price",
-      "label": "One-time unit price",
+      "label": "Unit price",
       "default": "$3.57 / serving"
-    },
-    {
-      "type": "text",
-      "id": "one_time_variant_id",
-      "label": "One-time Shopify variant ID"
     },
     {
       "type": "header",
