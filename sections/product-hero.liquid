@@ -21,7 +21,18 @@
   {% assign default_variant_id = '' %}
 {% endif %}
 
-<section class="product-hero" id="product-hero">
+<style>
+  #product-hero-{{ section.id }} {
+    --bundle-card-bg:              {{ section.settings.bundle_card_bg }};
+    --bundle-card-selected-bg:     {{ section.settings.bundle_card_selected_bg }};
+    --bundle-card-border:          {{ section.settings.bundle_card_border_color }};
+    --bundle-card-selected-border: {{ section.settings.bundle_card_selected_color }};
+    --bundle-card-radius:          {{ section.settings.bundle_card_radius }}px;
+    --bundle-card-padding:         {{ section.settings.bundle_card_padding }}px;
+  }
+</style>
+
+<section class="product-hero" id="product-hero-{{ section.id }}">
   <div class="product-hero__inner container">
 
     {%- comment -%} ── LEFT: IMAGE GALLERY ── {%- endcomment -%}
@@ -135,8 +146,8 @@
                   <div class="bundle-option__radio-indicator"></div>
                   <div class="bundle-option__title-group">
                     <span class="bundle-option__label">{{ section.settings.bundle_1_label }}</span>
-                    {% if section.settings.bundle_1_badge != blank %}
-                      <span class="bundle-option__badge">{{ section.settings.bundle_1_badge }}</span>
+                    {% if section.settings.bundle_1_badge != blank and section.settings.bundle_1_badge_show %}
+                      <span class="bundle-option__badge" style="background:{{ section.settings.bundle_1_badge_bg }};color:{{ section.settings.bundle_1_badge_text_color }};border-radius:{{ section.settings.bundle_1_badge_radius }}px;">{{ section.settings.bundle_1_badge }}</span>
                     {% endif %}
                   </div>
                   <div class="bundle-option__pricing">
@@ -191,8 +202,8 @@
                   <div class="bundle-option__radio-indicator"></div>
                   <div class="bundle-option__title-group">
                     <span class="bundle-option__label">{{ section.settings.bundle_2_label }}</span>
-                    {% if section.settings.bundle_2_badge != blank %}
-                      <span class="bundle-option__badge">{{ section.settings.bundle_2_badge }}</span>
+                    {% if section.settings.bundle_2_badge != blank and section.settings.bundle_2_badge_show %}
+                      <span class="bundle-option__badge" style="background:{{ section.settings.bundle_2_badge_bg }};color:{{ section.settings.bundle_2_badge_text_color }};border-radius:{{ section.settings.bundle_2_badge_radius }}px;">{{ section.settings.bundle_2_badge }}</span>
                     {% endif %}
                   </div>
                   <div class="bundle-option__pricing">
@@ -247,8 +258,8 @@
                   <div class="bundle-option__radio-indicator"></div>
                   <div class="bundle-option__title-group">
                     <span class="bundle-option__label">{{ section.settings.bundle_3_label }}</span>
-                    {% if section.settings.bundle_3_badge != blank %}
-                      <span class="bundle-option__badge">{{ section.settings.bundle_3_badge }}</span>
+                    {% if section.settings.bundle_3_badge != blank and section.settings.bundle_3_badge_show %}
+                      <span class="bundle-option__badge" style="background:{{ section.settings.bundle_3_badge_bg }};color:{{ section.settings.bundle_3_badge_text_color }};border-radius:{{ section.settings.bundle_3_badge_radius }}px;">{{ section.settings.bundle_3_badge }}</span>
                     {% endif %}
                   </div>
                   <div class="bundle-option__pricing">
@@ -435,6 +446,52 @@
     },
     {
       "type": "header",
+      "content": "Bundle card style"
+    },
+    {
+      "type": "color",
+      "id": "bundle_card_bg",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "bundle_card_selected_bg",
+      "label": "Selected card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "bundle_card_border_color",
+      "label": "Card border color",
+      "default": "#e0ddd7"
+    },
+    {
+      "type": "color",
+      "id": "bundle_card_selected_color",
+      "label": "Selected card border / ring color",
+      "default": "#1a3a2a"
+    },
+    {
+      "type": "range",
+      "id": "bundle_card_radius",
+      "label": "Card corner radius (px)",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "bundle_card_padding",
+      "label": "Card inner padding (px)",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "header",
       "content": "Bundle 1 (Subscription)"
     },
     {
@@ -466,10 +523,37 @@
       "default": "30 servings per pouch."
     },
     {
+      "type": "checkbox",
+      "id": "bundle_1_badge_show",
+      "label": "Show badge",
+      "default": true
+    },
+    {
       "type": "text",
       "id": "bundle_1_badge",
       "label": "Badge text",
       "default": "Most popular"
+    },
+    {
+      "type": "color",
+      "id": "bundle_1_badge_bg",
+      "label": "Badge background color",
+      "default": "#4ade80"
+    },
+    {
+      "type": "color",
+      "id": "bundle_1_badge_text_color",
+      "label": "Badge text color",
+      "default": "#0a2a16"
+    },
+    {
+      "type": "range",
+      "id": "bundle_1_badge_radius",
+      "label": "Badge corner radius (px)",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "default": 50
     },
     {
       "type": "text",
@@ -528,10 +612,37 @@
       "default": "60 servings total"
     },
     {
+      "type": "checkbox",
+      "id": "bundle_2_badge_show",
+      "label": "Show badge",
+      "default": true
+    },
+    {
       "type": "text",
       "id": "bundle_2_badge",
       "label": "Badge text",
       "default": "Best value"
+    },
+    {
+      "type": "color",
+      "id": "bundle_2_badge_bg",
+      "label": "Badge background color",
+      "default": "#4ade80"
+    },
+    {
+      "type": "color",
+      "id": "bundle_2_badge_text_color",
+      "label": "Badge text color",
+      "default": "#0a2a16"
+    },
+    {
+      "type": "range",
+      "id": "bundle_2_badge_radius",
+      "label": "Badge corner radius (px)",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "default": 50
     },
     {
       "type": "text",
@@ -587,9 +698,36 @@
       "label": "Sub-label"
     },
     {
+      "type": "checkbox",
+      "id": "bundle_3_badge_show",
+      "label": "Show badge",
+      "default": true
+    },
+    {
       "type": "text",
       "id": "bundle_3_badge",
       "label": "Badge text"
+    },
+    {
+      "type": "color",
+      "id": "bundle_3_badge_bg",
+      "label": "Badge background color",
+      "default": "#4ade80"
+    },
+    {
+      "type": "color",
+      "id": "bundle_3_badge_text_color",
+      "label": "Badge text color",
+      "default": "#0a2a16"
+    },
+    {
+      "type": "range",
+      "id": "bundle_3_badge_radius",
+      "label": "Badge corner radius (px)",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "default": 50
     },
     {
       "type": "text",
