@@ -13,6 +13,7 @@
       class="image-banner__bg image-banner__bg--desktop"
       loading="lazy"
       width="2000"
+      style="object-fit: {{ section.settings.image_fit }}; object-position: {{ section.settings.image_position }};"
     >
   {% endif %}
 
@@ -23,9 +24,8 @@
       class="image-banner__bg image-banner__bg--mobile"
       loading="lazy"
       width="1000"
+      style="object-fit: {{ section.settings.mobile_image_fit }}; object-position: {{ section.settings.mobile_image_position }};"
     >
-  {% elsif section.settings.image != blank %}
-    {%- comment -%} No mobile image set — reuse desktop but tag it so CSS still works {%- endcomment -%}
   {% endif %}
 
   <div class="image-banner__overlay" style="background: rgba(0,0,0,{{ section.settings.overlay_opacity | divided_by: 100.0 }});"></div>
@@ -54,7 +54,7 @@
   "settings": [
     {
       "type": "header",
-      "content": "Images"
+      "content": "Desktop image"
     },
     {
       "type": "image_picker",
@@ -62,19 +62,81 @@
       "label": "Desktop image"
     },
     {
-      "type": "image_picker",
-      "id": "mobile_image",
-      "label": "Mobile image",
-      "info": "Displayed on screens narrower than 768px. If left blank, the desktop image is used on all screen sizes."
+      "type": "select",
+      "id": "image_fit",
+      "label": "Desktop image fit",
+      "options": [
+        { "value": "cover",   "label": "Cover (fill, may crop)" },
+        { "value": "contain", "label": "Contain (show full image)" },
+        { "value": "fill",    "label": "Stretch to fill" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Desktop image anchor",
+      "info": "Controls which part of the image stays visible when cropped",
+      "options": [
+        { "value": "center center", "label": "Center" },
+        { "value": "top center",    "label": "Top" },
+        { "value": "bottom center", "label": "Bottom" },
+        { "value": "center left",   "label": "Left" },
+        { "value": "center right",  "label": "Right" },
+        { "value": "top left",      "label": "Top left" },
+        { "value": "top right",     "label": "Top right" },
+        { "value": "bottom left",   "label": "Bottom left" },
+        { "value": "bottom right",  "label": "Bottom right" }
+      ],
+      "default": "center center"
     },
     {
       "type": "range",
       "id": "height",
-      "label": "Min height (px)",
+      "label": "Desktop min height (px)",
       "min": 200,
-      "max": 800,
+      "max": 900,
       "step": 20,
       "default": 480
+    },
+    {
+      "type": "header",
+      "content": "Mobile image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image",
+      "info": "Shown on screens narrower than 768px. Leave blank to use the desktop image."
+    },
+    {
+      "type": "select",
+      "id": "mobile_image_fit",
+      "label": "Mobile image fit",
+      "options": [
+        { "value": "cover",   "label": "Cover (fill, may crop)" },
+        { "value": "contain", "label": "Contain (show full image)" },
+        { "value": "fill",    "label": "Stretch to fill" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "mobile_image_position",
+      "label": "Mobile image anchor",
+      "info": "Controls which part of the image stays visible when cropped",
+      "options": [
+        { "value": "center center", "label": "Center" },
+        { "value": "top center",    "label": "Top" },
+        { "value": "bottom center", "label": "Bottom" },
+        { "value": "center left",   "label": "Left" },
+        { "value": "center right",  "label": "Right" },
+        { "value": "top left",      "label": "Top left" },
+        { "value": "top right",     "label": "Top right" },
+        { "value": "bottom left",   "label": "Bottom left" },
+        { "value": "bottom right",  "label": "Bottom right" }
+      ],
+      "default": "center center"
     },
     {
       "type": "range",
@@ -86,6 +148,10 @@
       "default": 360
     },
     {
+      "type": "header",
+      "content": "Overlay & content"
+    },
+    {
       "type": "range",
       "id": "overlay_opacity",
       "label": "Dark overlay opacity (%)",
@@ -93,10 +159,6 @@
       "max": 80,
       "step": 5,
       "default": 30
-    },
-    {
-      "type": "header",
-      "content": "Content"
     },
     {
       "type": "text",
@@ -153,4 +215,3 @@
   ]
 }
 {% endschema %}
-
