@@ -14,7 +14,7 @@
       "settings": {
         "show_announcement": true,
         "text": "Introduktionserbjudande 300 Sek",
-        "bg_color": "#e8b7b4",
+        "bg_color": "#718bb0",
         "text_color": "#ffffff"
       }
     },
@@ -26,10 +26,10 @@
         "image_fit": "contain",
         "image_position": "center left",
         "height": 900,
-        "mobile_image": "shopify://shop_images/ChatGPT_Image_28_apr._2026_19_51_57.png",
+        "mobile_image": "shopify://shop_images/ChatGPT_Image_Apr_28_2026_08_44_44_PM.png",
         "mobile_image_fit": "cover",
         "mobile_image_position": "center center",
-        "mobile_height": 610,
+        "mobile_height": 490,
         "overlay_opacity": 0,
         "subheading": "",
         "heading": "",
