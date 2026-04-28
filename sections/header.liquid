@@ -1,5 +1,10 @@
 <style>
-  .site-header__inner { height: {{ section.settings.header_height }}px; }
+  .site-header { padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px; }
+  .site-header__inner {
+    height: {{ section.settings.header_height }}px;
+    padding-left: {{ section.settings.padding_horizontal }}px;
+    padding-right: {{ section.settings.padding_horizontal }}px;
+  }
 </style>
 
 <header class="site-header">
@@ -80,13 +85,46 @@
       "default": "main-menu"
     },
     {
+      "type": "header",
+      "content": "Size & spacing"
+    },
+    {
       "type": "range",
       "id": "header_height",
-      "label": "Header height (px)",
+      "label": "Inner height (px)",
+      "info": "Height of the nav bar itself",
       "min": 40,
       "max": 140,
       "step": 4,
       "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Extra side padding (px)",
+      "info": "Added on top of the page container padding",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 0
     }
   ],
   "presets": [
