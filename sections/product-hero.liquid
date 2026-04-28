@@ -29,6 +29,19 @@
     --bundle-card-selected-border: {{ section.settings.bundle_card_selected_color }};
     --bundle-card-radius:          {{ section.settings.bundle_card_radius }}px;
     --bundle-card-padding:         {{ section.settings.bundle_card_padding }}px;
+    --gallery-columns:             {{ section.settings.gallery_column_width }};
+    --purchase-columns:            {{ section.settings.purchase_column_width }};
+  }
+  #product-hero-{{ section.id }} .product-gallery__main {
+    aspect-ratio: {{ section.settings.image_aspect_ratio }};
+  }
+  #product-hero-{{ section.id }} .product-hero__inner {
+    grid-template-columns: var(--gallery-columns) var(--purchase-columns);
+  }
+  @media (max-width: 900px) {
+    #product-hero-{{ section.id }} .product-hero__inner {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 
@@ -380,6 +393,53 @@
     {
       "type": "paragraph",
       "content": "Make sure your product has variants set up in Shopify (e.g. 'Single', 'Double', 'One-Time'). Then map each bundle below to the correct variant by number (1 = first variant, 2 = second, etc.)."
+    },
+    {
+      "type": "header",
+      "content": "Image size"
+    },
+    {
+      "type": "select",
+      "id": "gallery_column_width",
+      "label": "Image column width",
+      "info": "How much horizontal space the image takes vs the purchase panel",
+      "options": [
+        { "value": "1fr",   "label": "Small (equal split)" },
+        { "value": "1.1fr", "label": "Slightly larger" },
+        { "value": "1.25fr","label": "Medium-large" },
+        { "value": "1.5fr", "label": "Large" },
+        { "value": "1.75fr","label": "Extra large" },
+        { "value": "2fr",   "label": "2× purchase panel" }
+      ],
+      "default": "1fr"
+    },
+    {
+      "type": "select",
+      "id": "purchase_column_width",
+      "label": "Purchase panel width",
+      "info": "How much horizontal space the purchase panel takes",
+      "options": [
+        { "value": "1fr",   "label": "Equal (matches image)" },
+        { "value": "1.1fr", "label": "Slightly wider" },
+        { "value": "1.25fr","label": "Medium-wide" },
+        { "value": "1.5fr", "label": "Wide" }
+      ],
+      "default": "1fr"
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        { "value": "1 / 1",  "label": "Square (1:1)" },
+        { "value": "4 / 5",  "label": "Portrait (4:5)" },
+        { "value": "3 / 4",  "label": "Tall portrait (3:4)" },
+        { "value": "2 / 3",  "label": "Extra tall (2:3)" },
+        { "value": "5 / 4",  "label": "Landscape (5:4)" },
+        { "value": "4 / 3",  "label": "Wide landscape (4:3)" },
+        { "value": "16 / 9", "label": "Widescreen (16:9)" }
+      ],
+      "default": "1 / 1"
     },
     {
       "type": "header",
