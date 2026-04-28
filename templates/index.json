@@ -13,7 +13,7 @@
       "type": "announcement-bar",
       "settings": {
         "show_announcement": true,
-        "text": "Free shipping on all orders. 30-day money-back guarantee.",
+        "text": "Introduktionserbjudande 300 Sek",
         "bg_color": "#1a3a2a",
         "text_color": "#ffffff"
       }
