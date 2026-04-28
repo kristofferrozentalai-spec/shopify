@@ -1,3 +1,7 @@
+<style>
+  .site-header__inner { height: {{ section.settings.header_height }}px; }
+</style>
+
 <header class="site-header">
   <div class="site-header__inner container{% if section.settings.logo_alignment == 'center' %} site-header__inner--centered{% endif %}">
 
@@ -74,6 +78,15 @@
       "id": "menu",
       "label": "Navigation menu",
       "default": "main-menu"
+    },
+    {
+      "type": "range",
+      "id": "header_height",
+      "label": "Header height (px)",
+      "min": 40,
+      "max": 140,
+      "step": 4,
+      "default": 64
     }
   ],
   "presets": [
