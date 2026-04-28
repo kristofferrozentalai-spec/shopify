@@ -23,7 +23,9 @@
       "name": "Image banner",
       "settings": {
         "image": "shopify://shop_images/ChatGPT_Image_28_apr._2026_12_01_19.png",
-        "height": 720,
+        "mobile_image": "shopify://shop_images/ChatGPTImage28apr.202612_16_08.png",
+        "height": 780,
+        "mobile_height": 360,
         "overlay_opacity": 0,
         "subheading": "",
         "heading": "",
