@@ -27,9 +27,10 @@
         "type": "header",
         "settings": {
           "logo": "shopify://shop_images/ChatGPT_Image_Apr_28_2026_04_01_58_PM.png",
-          "logo_width": 190,
+          "logo_width": 300,
           "logo_alignment": "center",
-          "menu": "main-menu"
+          "menu": "main-menu",
+          "header_height": 140
         }
       },
       "footer": {
