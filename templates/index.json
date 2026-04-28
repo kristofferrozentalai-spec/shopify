@@ -18,6 +18,22 @@
         "text_color": "#ffffff"
       }
     },
+    "image_banner_JVJKTj": {
+      "type": "image-banner",
+      "name": "Image banner",
+      "settings": {
+        "image": "shopify://shop_images/ChatGPT_Image_28_apr._2026_12_01_19.png",
+        "height": 740,
+        "overlay_opacity": 0,
+        "subheading": "",
+        "heading": "Your headline here",
+        "text": "",
+        "button_label": "Shop now",
+        "button_url": "",
+        "alignment": "center",
+        "text_color": "#ffffff"
+      }
+    },
     "product-hero": {
       "type": "product-hero",
       "settings": {
@@ -90,6 +106,7 @@
   },
   "order": [
     "announcement",
+    "image_banner_JVJKTj",
     "product-hero"
   ]
 }
