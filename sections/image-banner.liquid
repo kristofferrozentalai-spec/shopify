@@ -1,13 +1,33 @@
-<div class="image-banner section-spacing--none" style="position: relative; overflow: hidden; min-height: {{ section.settings.height }}px;">
+<style>
+  .image-banner-{{ section.id }} { min-height: {{ section.settings.height }}px; }
+  @media (max-width: 767px) {
+    .image-banner-{{ section.id }} { min-height: {{ section.settings.mobile_height }}px; }
+  }
+</style>
+
+<div class="image-banner image-banner-{{ section.id }} section-spacing--none" style="position: relative; overflow: hidden;">
   {% if section.settings.image != blank %}
     <img
       src="{{ section.settings.image | image_url: width: 2000 }}"
       alt="{{ section.settings.heading | escape }}"
-      class="image-banner__bg"
+      class="image-banner__bg image-banner__bg--desktop"
       loading="lazy"
       width="2000"
     >
   {% endif %}
+
+  {% if section.settings.mobile_image != blank %}
+    <img
+      src="{{ section.settings.mobile_image | image_url: width: 1000 }}"
+      alt="{{ section.settings.heading | escape }}"
+      class="image-banner__bg image-banner__bg--mobile"
+      loading="lazy"
+      width="1000"
+    >
+  {% elsif section.settings.image != blank %}
+    {%- comment -%} No mobile image set — reuse desktop but tag it so CSS still works {%- endcomment -%}
+  {% endif %}
+
   <div class="image-banner__overlay" style="background: rgba(0,0,0,{{ section.settings.overlay_opacity | divided_by: 100.0 }});"></div>
   <div class="image-banner__content container" style="text-align: {{ section.settings.alignment }}; color: {{ section.settings.text_color }};">
     {% if section.settings.subheading != blank %}
@@ -33,9 +53,19 @@
   "tag": "section",
   "settings": [
     {
+      "type": "header",
+      "content": "Images"
+    },
+    {
       "type": "image_picker",
       "id": "image",
-      "label": "Background image"
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image",
+      "info": "Displayed on screens narrower than 768px. If left blank, the desktop image is used on all screen sizes."
     },
     {
       "type": "range",
@@ -48,12 +78,25 @@
     },
     {
       "type": "range",
+      "id": "mobile_height",
+      "label": "Mobile min height (px)",
+      "min": 150,
+      "max": 700,
+      "step": 10,
+      "default": 360
+    },
+    {
+      "type": "range",
       "id": "overlay_opacity",
       "label": "Dark overlay opacity (%)",
       "min": 0,
       "max": 80,
       "step": 5,
       "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Content"
     },
     {
       "type": "text",
@@ -110,3 +153,4 @@
   ]
 }
 {% endschema %}
+

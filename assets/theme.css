@@ -1042,6 +1042,15 @@ body.cart-drawer-open { overflow: hidden; }
   width: 100%; height: 100%;
   object-fit: cover;
 }
+/* Show desktop, hide mobile image by default */
+.image-banner__bg--mobile  { display: none; }
+.image-banner__bg--desktop { display: block; }
+
+@media (max-width: 767px) {
+  /* Swap to mobile image when one is set */
+  .image-banner__bg--mobile  { display: block; }
+  .image-banner__bg--desktop { display: none; }
+}
 .image-banner__overlay {
   position: absolute;
   inset: 0;
