@@ -23,7 +23,7 @@
       "name": "Image banner",
       "settings": {
         "image": "shopify://shop_images/ChatGPT_Image_Apr_28_2026_04_19_23_PM.png",
-        "image_fit": "fill",
+        "image_fit": "contain",
         "image_position": "center center",
         "height": 540,
         "mobile_image": "shopify://shop_images/ChatGPTImage28apr.202612_16_08.png",
