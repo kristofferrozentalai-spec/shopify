@@ -1187,3 +1187,47 @@ body.cart-drawer-open { overflow: hidden; }
   grid-template-rows: 1fr;
 }
 .accordion__body > div { overflow: hidden; }
+
+/* ============================================
+   VARIANT OPTION SELECTORS
+   ============================================ */
+.variant-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.variant-option__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+  letter-spacing: .01em;
+}
+
+.variant-option__values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.variant-option__pill {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  background: var(--color-bg-card, #fff);
+  border: 1.5px solid var(--color-border);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+.variant-option__pill:hover {
+  border-color: var(--color-text);
+}
+.variant-option__pill.is-selected {
+  background: var(--color-text);
+  color: #fff;
+  border-color: var(--color-text);
+}

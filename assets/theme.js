@@ -217,26 +217,111 @@
   }
 
   /* ============================================
+     VARIANT FINDER
+     ============================================ */
+
+  function getProductData(form) {
+    var scriptEl = form.querySelector('[id^="product-data-"]');
+    if (!scriptEl) return null;
+    try { return JSON.parse(scriptEl.textContent); } catch (e) { return null; }
+  }
+
+  function getSelectedOptionValues(form) {
+    var result = {};
+    form.querySelectorAll('.variant-option').forEach(function (optEl) {
+      var name = optEl.dataset.optionName;
+      var selected = optEl.querySelector('.variant-option__pill.is-selected');
+      if (name && selected) result[name] = selected.dataset.value;
+    });
+    return result;
+  }
+
+  function findVariant(data, bundleOptionName, bundleOptionValue, selectedOptions) {
+    if (!data) return null;
+    return data.variants.find(function (v) {
+      return data.options.every(function (optName, i) {
+        var variantVal = v['option' + (i + 1)];
+        if (bundleOptionName && optName.toLowerCase() === bundleOptionName.toLowerCase()) {
+          return !bundleOptionValue || variantVal === bundleOptionValue;
+        }
+        return selectedOptions[optName] ? variantVal === selectedOptions[optName] : true;
+      });
+    }) || null;
+  }
+
+  function resolveVariant(form) {
+    var variantInput = form.querySelector('#selected-variant-id');
+    if (!variantInput) return;
+
+    var bundleOptionName = form.dataset.bundleOption || '';
+    var checkedRadio = form.querySelector('.bundle-option__radio:checked');
+
+    // No option selectors present — fall back to direct variant ID on radio
+    var optionContainers = form.querySelectorAll('.variant-option');
+    if (optionContainers.length === 0 || bundleOptionName === '') {
+      if (checkedRadio && checkedRadio.dataset.variantId) {
+        variantInput.value = checkedRadio.dataset.variantId;
+      }
+      return;
+    }
+
+    var data = getProductData(form);
+    if (!data) return;
+
+    var bundleOptionValue = checkedRadio ? (checkedRadio.dataset.optionValue || '') : '';
+    var selectedOptions = getSelectedOptionValues(form);
+    var variant = findVariant(data, bundleOptionName, bundleOptionValue, selectedOptions);
+
+    if (variant) {
+      variantInput.value = variant.id;
+      var btn = form.querySelector('#add-to-cart-btn');
+      if (btn) btn.disabled = !variant.available;
+    }
+  }
+
+  /* ============================================
      BUNDLE SELECTOR
      ============================================ */
   function initBundleSelector() {
     var form = document.getElementById('product-form');
     if (!form) return;
 
-    var radios      = form.querySelectorAll('.bundle-option__radio');
-    var variantInput = form.querySelector('#selected-variant-id');
-    var labels      = form.querySelectorAll('.bundle-option');
+    var radios = form.querySelectorAll('.bundle-option__radio');
+    var labels = form.querySelectorAll('.bundle-option');
 
     radios.forEach(function (radio) {
       radio.addEventListener('change', function () {
         labels.forEach(function (lbl) { lbl.classList.remove('bundle-option--selected'); });
         var parentLabel = radio.closest('.bundle-option');
         if (parentLabel) parentLabel.classList.add('bundle-option--selected');
-        if (variantInput && radio.dataset.variantId) {
-          variantInput.value = radio.dataset.variantId;
-        }
+        resolveVariant(form);
       });
     });
+  }
+
+  /* ============================================
+     VARIANT OPTION SELECTORS
+     ============================================ */
+  function initVariantOptions() {
+    var form = document.getElementById('product-form');
+    if (!form) return;
+
+    form.querySelectorAll('.variant-option').forEach(function (optEl) {
+      optEl.querySelectorAll('.variant-option__pill').forEach(function (pill) {
+        pill.addEventListener('click', function () {
+          optEl.querySelectorAll('.variant-option__pill').forEach(function (p) {
+            p.classList.remove('is-selected');
+            p.setAttribute('aria-pressed', 'false');
+          });
+          pill.classList.add('is-selected');
+          pill.setAttribute('aria-pressed', 'true');
+          resolveVariant(form);
+        });
+      });
+    });
+
+    // Run once on load to sync initial state
+    resolveVariant(form);
   }
 
   /* ============================================
@@ -311,6 +396,7 @@
     CartDrawer.refresh(); // prime count on load
     initGallery();
     initBundleSelector();
+    initVariantOptions();
     initTabs();
     initCartForm();
   });

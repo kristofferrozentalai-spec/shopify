@@ -140,7 +140,14 @@
       {% endif %}
 
       {%- comment -%} Bundle / subscription options {%- endcomment -%}
-      <form action="{{ routes.cart_add_url }}" method="post" class="product-form" id="product-form" novalidate>
+      <form
+        action="{{ routes.cart_add_url }}"
+        method="post"
+        class="product-form"
+        id="product-form"
+        data-bundle-option="{{ section.settings.bundle_option_name | escape }}"
+        novalidate
+      >
 
         <div class="bundle-options" role="radiogroup" aria-label="Choose your bundle">
 
@@ -152,6 +159,7 @@
             <label class="bundle-option bundle-option--selected" data-bundle="1">
               <input type="radio" name="bundle_choice" value="1"
                 data-variant-id="{{ b1_vid }}"
+                data-option-value="{{ section.settings.bundle_1_option_value | escape }}"
                 checked
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
@@ -209,6 +217,7 @@
             <label class="bundle-option" data-bundle="2">
               <input type="radio" name="bundle_choice" value="2"
                 data-variant-id="{{ b2_vid }}"
+                data-option-value="{{ section.settings.bundle_2_option_value | escape }}"
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
                 <div class="bundle-option__header">
@@ -265,6 +274,7 @@
             <label class="bundle-option" data-bundle="3">
               <input type="radio" name="bundle_choice" value="3"
                 data-variant-id="{{ b3_vid }}"
+                data-option-value="{{ section.settings.bundle_3_option_value | escape }}"
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
                 <div class="bundle-option__header">
@@ -311,6 +321,7 @@
             <label class="bundle-option bundle-option--one-time" data-bundle="one-time">
               <input type="radio" name="bundle_choice" value="one-time"
                 data-variant-id="{{ ot_vid }}"
+                data-option-value="{{ section.settings.one_time_option_value | escape }}"
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
                 <div class="bundle-option__header">
@@ -337,7 +348,48 @@
 
         </div><!-- /.bundle-options -->
 
-        {%- comment -%} Hidden input updated by JS on radio change {%- endcomment -%}
+        {%- comment -%}
+          Product variants JSON — read by JS to resolve variant on option change.
+          Option selectors are rendered for all options except the bundle dimension.
+        {%- endcomment -%}
+        {% if product != blank %}
+          <script id="product-data-{{ section.id }}" type="application/json">
+            {"variants":{{ product.variants | json }},"options":{{ product.options | json }}}
+          </script>
+
+          {%- assign bundle_opt_lower = section.settings.bundle_option_name | downcase | strip -%}
+          {%- assign has_extra_options = false -%}
+          {%- for opt in product.options -%}
+            {%- unless opt | downcase | strip == bundle_opt_lower -%}
+              {%- assign has_extra_options = true -%}
+            {%- endunless -%}
+          {%- endfor -%}
+
+          {% if has_extra_options %}
+            <div class="variant-options" id="variant-options-{{ section.id }}" data-section="{{ section.id }}">
+              {% for option in product.options_with_values %}
+                {%- assign opt_lower = option.name | downcase | strip -%}
+                {% unless opt_lower == bundle_opt_lower %}
+                  <div class="variant-option" data-option-name="{{ option.name | escape }}" data-option-position="{{ forloop.index }}">
+                    <p class="variant-option__label">{{ option.name }}</p>
+                    <div class="variant-option__values">
+                      {% for value in option.values %}
+                        <button
+                          type="button"
+                          class="variant-option__pill{% if forloop.first %} is-selected{% endif %}"
+                          data-value="{{ value | escape }}"
+                          aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                        >{{ value }}</button>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endunless %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endif %}
+
+        {%- comment -%} Hidden input updated by JS on radio/option change {%- endcomment -%}
         <input type="hidden" name="id" id="selected-variant-id" value="{{ default_variant_id }}">
         <input type="hidden" name="quantity" value="1">
 
@@ -393,6 +445,43 @@
     {
       "type": "paragraph",
       "content": "Make sure your product has variants set up in Shopify (e.g. 'Single', 'Double', 'One-Time'). Then map each bundle below to the correct variant by number (1 = first variant, 2 = second, etc.)."
+    },
+    {
+      "type": "header",
+      "content": "Product options (color, size, etc.)"
+    },
+    {
+      "type": "paragraph",
+      "content": "If your product has options like Color or Size, set the option name that represents your bundles below. The other options will appear as selectors on the page."
+    },
+    {
+      "type": "text",
+      "id": "bundle_option_name",
+      "label": "Bundle option name",
+      "info": "Exact name of the option that controls bundles/quantities (e.g. 'Pack size'). Leave blank if your product only has one option type.",
+      "default": ""
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_option_value",
+      "label": "Bundle 1 — option value",
+      "info": "The value of the above option that maps to Bundle 1 (e.g. '1-pack', 'Single')"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_option_value",
+      "label": "Bundle 2 — option value",
+      "info": "e.g. '2-pack', 'Double'"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_option_value",
+      "label": "Bundle 3 — option value"
+    },
+    {
+      "type": "text",
+      "id": "one_time_option_value",
+      "label": "One-time — option value"
     },
     {
       "type": "header",
