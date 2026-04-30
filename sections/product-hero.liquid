@@ -160,6 +160,7 @@
               <input type="radio" name="bundle_choice" value="1"
                 data-variant-id="{{ b1_vid }}"
                 data-option-value="{{ section.settings.bundle_1_option_value | escape }}"
+                data-quantity="{{ section.settings.bundle_1_quantity | default: 1 }}"
                 checked
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
@@ -218,6 +219,7 @@
               <input type="radio" name="bundle_choice" value="2"
                 data-variant-id="{{ b2_vid }}"
                 data-option-value="{{ section.settings.bundle_2_option_value | escape }}"
+                data-quantity="{{ section.settings.bundle_2_quantity | default: 2 }}"
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
                 <div class="bundle-option__header">
@@ -275,6 +277,7 @@
               <input type="radio" name="bundle_choice" value="3"
                 data-variant-id="{{ b3_vid }}"
                 data-option-value="{{ section.settings.bundle_3_option_value | escape }}"
+                data-quantity="{{ section.settings.bundle_3_quantity | default: 3 }}"
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
                 <div class="bundle-option__header">
@@ -322,6 +325,7 @@
               <input type="radio" name="bundle_choice" value="one-time"
                 data-variant-id="{{ ot_vid }}"
                 data-option-value="{{ section.settings.one_time_option_value | escape }}"
+                data-quantity="1"
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
                 <div class="bundle-option__header">
@@ -347,6 +351,59 @@
           {% endif %}
 
         </div><!-- /.bundle-options -->
+
+        {%- comment -%} Manual color / variant selector {%- endcomment -%}
+        {% if section.settings.show_color_options %}
+          {%- assign cv1_idx = section.settings.color_1_variant_index | minus: 1 -%}
+          {%- assign cv2_idx = section.settings.color_2_variant_index | minus: 1 -%}
+          {%- assign cv3_idx = section.settings.color_3_variant_index | minus: 1 -%}
+          {%- assign cv4_idx = section.settings.color_4_variant_index | minus: 1 -%}
+          {%- if product != blank -%}
+            {%- assign cv1 = product.variants[cv1_idx] -%}
+            {%- assign cv2 = product.variants[cv2_idx] -%}
+            {%- assign cv3 = product.variants[cv3_idx] -%}
+            {%- assign cv4 = product.variants[cv4_idx] -%}
+          {%- endif -%}
+          <div class="color-options">
+            {% if section.settings.color_option_label != blank %}
+              <p class="color-options__label">{{ section.settings.color_option_label }}</p>
+            {% endif %}
+            <div class="color-options__pills">
+              {% if section.settings.color_1_label != blank %}
+                <button type="button" class="color-option__pill is-selected"
+                  data-variant-id="{{ cv1.id | default: '' }}"
+                  aria-pressed="true">
+                  <span class="color-option__swatch" style="background:{{ section.settings.color_1_swatch }};"></span>
+                  <span>{{ section.settings.color_1_label }}</span>
+                </button>
+              {% endif %}
+              {% if section.settings.color_2_label != blank %}
+                <button type="button" class="color-option__pill"
+                  data-variant-id="{{ cv2.id | default: '' }}"
+                  aria-pressed="false">
+                  <span class="color-option__swatch" style="background:{{ section.settings.color_2_swatch }};"></span>
+                  <span>{{ section.settings.color_2_label }}</span>
+                </button>
+              {% endif %}
+              {% if section.settings.color_3_label != blank %}
+                <button type="button" class="color-option__pill"
+                  data-variant-id="{{ cv3.id | default: '' }}"
+                  aria-pressed="false">
+                  <span class="color-option__swatch" style="background:{{ section.settings.color_3_swatch }};"></span>
+                  <span>{{ section.settings.color_3_label }}</span>
+                </button>
+              {% endif %}
+              {% if section.settings.color_4_label != blank %}
+                <button type="button" class="color-option__pill"
+                  data-variant-id="{{ cv4.id | default: '' }}"
+                  aria-pressed="false">
+                  <span class="color-option__swatch" style="background:{{ section.settings.color_4_swatch }};"></span>
+                  <span>{{ section.settings.color_4_label }}</span>
+                </button>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
 
         {%- comment -%}
           Product variants JSON — read by JS to resolve variant on option change.
@@ -723,6 +780,16 @@
       "default": "$2.90 / serving"
     },
     {
+      "type": "range",
+      "id": "bundle_1_quantity",
+      "label": "Quantity added to cart",
+      "info": "How many units this bundle adds to cart",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 1
+    },
+    {
       "type": "textarea",
       "id": "bundle_1_perks",
       "label": "Perks list (separate with |)",
@@ -812,6 +879,15 @@
       "default": "$2.78 / serving"
     },
     {
+      "type": "range",
+      "id": "bundle_2_quantity",
+      "label": "Quantity added to cart",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 2
+    },
+    {
       "type": "textarea",
       "id": "bundle_2_perks",
       "label": "Perks list (separate with |)"
@@ -894,9 +970,119 @@
       "label": "Unit price"
     },
     {
+      "type": "range",
+      "id": "bundle_3_quantity",
+      "label": "Quantity added to cart",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 3
+    },
+    {
       "type": "textarea",
       "id": "bundle_3_perks",
       "label": "Perks list (separate with |)"
+    },
+    {
+      "type": "header",
+      "content": "Color options"
+    },
+    {
+      "type": "paragraph",
+      "content": "Enable this to show a color / variant picker. Set each color's label, swatch, and map it to a product variant by number (1 = first variant, 2 = second, etc.)."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_color_options",
+      "label": "Show color selector",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "color_option_label",
+      "label": "Label above colors",
+      "default": "Color"
+    },
+    {
+      "type": "text",
+      "id": "color_1_label",
+      "label": "Color 1 — name",
+      "info": "e.g. Matcha green"
+    },
+    {
+      "type": "color",
+      "id": "color_1_swatch",
+      "label": "Color 1 — swatch",
+      "default": "#88c98e"
+    },
+    {
+      "type": "range",
+      "id": "color_1_variant_index",
+      "label": "Color 1 — variant number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "text",
+      "id": "color_2_label",
+      "label": "Color 2 — name"
+    },
+    {
+      "type": "color",
+      "id": "color_2_swatch",
+      "label": "Color 2 — swatch",
+      "default": "#2a3a5a"
+    },
+    {
+      "type": "range",
+      "id": "color_2_variant_index",
+      "label": "Color 2 — variant number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "text",
+      "id": "color_3_label",
+      "label": "Color 3 — name"
+    },
+    {
+      "type": "color",
+      "id": "color_3_swatch",
+      "label": "Color 3 — swatch",
+      "default": "#e8a0a0"
+    },
+    {
+      "type": "range",
+      "id": "color_3_variant_index",
+      "label": "Color 3 — variant number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "color_4_label",
+      "label": "Color 4 — name"
+    },
+    {
+      "type": "color",
+      "id": "color_4_swatch",
+      "label": "Color 4 — swatch",
+      "default": "#c0a080"
+    },
+    {
+      "type": "range",
+      "id": "color_4_variant_index",
+      "label": "Color 4 — variant number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 4
     },
     {
       "type": "header",

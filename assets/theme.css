@@ -1231,3 +1231,50 @@ body.cart-drawer-open { overflow: hidden; }
   color: #fff;
   border-color: var(--color-text);
 }
+
+/* ── COLOR OPTIONS ── */
+.color-options {
+  margin-bottom: 16px;
+}
+.color-options__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 10px;
+  letter-spacing: .01em;
+}
+.color-options__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.color-option__pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  background: var(--color-bg-card, #fff);
+  border: 1.5px solid var(--color-border);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+.color-option__pill:hover {
+  border-color: var(--color-text);
+}
+.color-option__pill.is-selected {
+  border-color: var(--color-text);
+  background: var(--color-text);
+  color: #fff;
+}
+.color-option__swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}

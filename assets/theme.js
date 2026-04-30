@@ -253,6 +253,9 @@
     var variantInput = form.querySelector('#selected-variant-id');
     if (!variantInput) return;
 
+    // Color pills take full control of variant when present
+    if (form.querySelectorAll('.color-option__pill').length > 0) return;
+
     var bundleOptionName = form.dataset.bundleOption || '';
     var checkedRadio = form.querySelector('.bundle-option__radio:checked');
 
@@ -277,6 +280,40 @@
       var btn = form.querySelector('#add-to-cart-btn');
       if (btn) btn.disabled = !variant.available;
     }
+  }
+
+  /* ============================================
+     COLOR / VARIANT SELECTOR
+     ============================================ */
+  function initColorOptions() {
+    var form = document.getElementById('product-form');
+    if (!form) return;
+
+    var pills = form.querySelectorAll('.color-option__pill');
+    if (!pills.length) return;
+
+    function selectPill(pill) {
+      pills.forEach(function (p) {
+        p.classList.remove('is-selected');
+        p.setAttribute('aria-pressed', 'false');
+      });
+      pill.classList.add('is-selected');
+      pill.setAttribute('aria-pressed', 'true');
+
+      var variantInput = form.querySelector('#selected-variant-id');
+      if (variantInput) variantInput.value = pill.dataset.variantId || '';
+
+      var btn = form.querySelector('#add-to-cart-btn');
+      if (btn) btn.disabled = !pill.dataset.variantId;
+    }
+
+    pills.forEach(function (pill) {
+      pill.addEventListener('click', function () { selectPill(pill); });
+    });
+
+    // Initialise from the first pill
+    var first = form.querySelector('.color-option__pill.is-selected') || pills[0];
+    if (first) selectPill(first);
   }
 
   /* ============================================
@@ -369,7 +406,9 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="btn-spinner"></span> Adding…';
 
-        CartDrawer.addItem(variantInput.value, 1)
+        var checkedBundle = form.querySelector('.bundle-option__radio:checked');
+        var qty = checkedBundle && checkedBundle.dataset.quantity ? parseInt(checkedBundle.dataset.quantity, 10) : 1;
+        CartDrawer.addItem(variantInput.value, qty)
           .then(function () {
             btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Added!';
             return fetch('/cart.js').then(function (r) { return r.json(); });
@@ -395,6 +434,7 @@
     CartDrawer.init();
     CartDrawer.refresh(); // prime count on load
     initGallery();
+    initColorOptions();
     initBundleSelector();
     initVariantOptions();
     initTabs();
