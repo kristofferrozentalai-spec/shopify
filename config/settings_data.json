@@ -39,6 +39,8 @@
       "footer": {
         "type": "footer",
         "settings": {
+          "bg_color": "#a9c0ac",
+          "text_color": "#ffffff",
           "tagline": "Premium quality, delivered.",
           "footer_menu": "footer"
         }
