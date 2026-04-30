@@ -1,4 +1,4 @@
-{% assign product = all_products[section.settings.product] %}
+{% assign product = section.settings.product %}
 
 {%- comment -%}
   Pre-resolve each bundle's Shopify variant from the product by index.
@@ -148,6 +148,36 @@
         data-bundle-option="{{ section.settings.bundle_option_name | escape }}"
         novalidate
       >
+
+        {%- comment -%} Variant option selectors (color, size, etc.) — auto-populated from product {%- endcomment -%}
+        {% if product != blank %}
+          <script id="product-data-{{ section.id }}" type="application/json">
+            {"variants":{{ product.variants | json }},"options":{{ product.options | json }}}
+          </script>
+          {%- assign bundle_opt_lower = section.settings.bundle_option_name | downcase | strip -%}
+          <div class="variant-options" id="variant-options-{{ section.id }}">
+            {% for option in product.options_with_values %}
+              {%- assign opt_lower = option.name | downcase | strip -%}
+              {%- assign skip = false -%}
+              {%- if bundle_opt_lower != blank and opt_lower == bundle_opt_lower -%}{%- assign skip = true -%}{%- endif -%}
+              {%- if option.name == 'Title' and option.values.first == 'Default Title' and option.values.size == 1 -%}{%- assign skip = true -%}{%- endif -%}
+              {% unless skip %}
+                <div class="variant-option" data-option-name="{{ option.name | escape }}" data-option-position="{{ forloop.index }}">
+                  <p class="variant-option__label">{{ option.name }}</p>
+                  <div class="variant-option__values">
+                    {% for value in option.values %}
+                      <button type="button"
+                        class="variant-option__pill{% if forloop.first %} is-selected{% endif %}"
+                        data-value="{{ value | escape }}"
+                        aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                      >{{ value }}</button>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endunless %}
+            {% endfor %}
+          </div>
+        {% endif %}
 
         <div class="bundle-options" role="radiogroup" aria-label="Choose your bundle">
 
@@ -351,100 +381,6 @@
           {% endif %}
 
         </div><!-- /.bundle-options -->
-
-        {%- comment -%} Manual color / variant selector {%- endcomment -%}
-        {% if section.settings.show_color_options %}
-          {%- assign cv1_idx = section.settings.color_1_variant_index | minus: 1 -%}
-          {%- assign cv2_idx = section.settings.color_2_variant_index | minus: 1 -%}
-          {%- assign cv3_idx = section.settings.color_3_variant_index | minus: 1 -%}
-          {%- assign cv4_idx = section.settings.color_4_variant_index | minus: 1 -%}
-          {%- if product != blank -%}
-            {%- assign cv1 = product.variants[cv1_idx] -%}
-            {%- assign cv2 = product.variants[cv2_idx] -%}
-            {%- assign cv3 = product.variants[cv3_idx] -%}
-            {%- assign cv4 = product.variants[cv4_idx] -%}
-          {%- endif -%}
-          <div class="color-options">
-            {% if section.settings.color_option_label != blank %}
-              <p class="color-options__label">{{ section.settings.color_option_label }}</p>
-            {% endif %}
-            <div class="color-options__pills">
-              {% if section.settings.color_1_label != blank %}
-                <button type="button" class="color-option__pill is-selected"
-                  data-variant-id="{{ cv1.id | default: '' }}"
-                  aria-pressed="true">
-                  <span class="color-option__swatch" style="background:{{ section.settings.color_1_swatch }};"></span>
-                  <span>{{ section.settings.color_1_label }}</span>
-                </button>
-              {% endif %}
-              {% if section.settings.color_2_label != blank %}
-                <button type="button" class="color-option__pill"
-                  data-variant-id="{{ cv2.id | default: '' }}"
-                  aria-pressed="false">
-                  <span class="color-option__swatch" style="background:{{ section.settings.color_2_swatch }};"></span>
-                  <span>{{ section.settings.color_2_label }}</span>
-                </button>
-              {% endif %}
-              {% if section.settings.color_3_label != blank %}
-                <button type="button" class="color-option__pill"
-                  data-variant-id="{{ cv3.id | default: '' }}"
-                  aria-pressed="false">
-                  <span class="color-option__swatch" style="background:{{ section.settings.color_3_swatch }};"></span>
-                  <span>{{ section.settings.color_3_label }}</span>
-                </button>
-              {% endif %}
-              {% if section.settings.color_4_label != blank %}
-                <button type="button" class="color-option__pill"
-                  data-variant-id="{{ cv4.id | default: '' }}"
-                  aria-pressed="false">
-                  <span class="color-option__swatch" style="background:{{ section.settings.color_4_swatch }};"></span>
-                  <span>{{ section.settings.color_4_label }}</span>
-                </button>
-              {% endif %}
-            </div>
-          </div>
-        {% endif %}
-
-        {%- comment -%}
-          Product variants JSON — read by JS to resolve variant on option change.
-          Renders pill selectors for all product options except:
-          - The "bundle" option (if bundle_option_name is set)
-          - The Shopify default "Title / Default Title" placeholder
-        {%- endcomment -%}
-        {% if product != blank %}
-          <script id="product-data-{{ section.id }}" type="application/json">
-            {"variants":{{ product.variants | json }},"options":{{ product.options | json }}}
-          </script>
-
-          {%- assign bundle_opt_lower = section.settings.bundle_option_name | downcase | strip -%}
-          <div class="variant-options" id="variant-options-{{ section.id }}" data-section="{{ section.id }}">
-            {% for option in product.options_with_values %}
-              {%- assign opt_lower = option.name | downcase | strip -%}
-              {%- assign skip = false -%}
-              {%- if bundle_opt_lower != blank and opt_lower == bundle_opt_lower -%}
-                {%- assign skip = true -%}
-              {%- endif -%}
-              {%- if option.name == 'Title' and option.values.first == 'Default Title' and option.values.size == 1 -%}
-                {%- assign skip = true -%}
-              {%- endif -%}
-              {% unless skip %}
-                <div class="variant-option" data-option-name="{{ option.name | escape }}" data-option-position="{{ forloop.index }}">
-                  <p class="variant-option__label">{{ option.name }}</p>
-                  <div class="variant-option__values">
-                    {% for value in option.values %}
-                      <button
-                        type="button"
-                        class="variant-option__pill{% if forloop.first %} is-selected{% endif %}"
-                        data-value="{{ value | escape }}"
-                        aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
-                      >{{ value }}</button>
-                    {% endfor %}
-                  </div>
-                </div>
-              {% endunless %}
-            {% endfor %}
-          </div>
-        {% endif %}
 
         {%- comment -%} Hidden input updated by JS on radio/option change {%- endcomment -%}
         <input type="hidden" name="id" id="selected-variant-id" value="{{ default_variant_id }}">

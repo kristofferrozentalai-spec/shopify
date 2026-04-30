@@ -244,7 +244,8 @@
         if (bundleOptionName && optName.toLowerCase() === bundleOptionName.toLowerCase()) {
           return !bundleOptionValue || variantVal === bundleOptionValue;
         }
-        return selectedOptions[optName] ? variantVal === selectedOptions[optName] : true;
+        if (selectedOptions[optName]) return variantVal === selectedOptions[optName];
+        return true;
       });
     }) || null;
   }
@@ -253,21 +254,19 @@
     var variantInput = form.querySelector('#selected-variant-id');
     if (!variantInput) return;
 
-    // Color pills take full control of variant when present
-    if (form.querySelectorAll('.color-option__pill').length > 0) return;
-
     var bundleOptionName = form.dataset.bundleOption || '';
     var checkedRadio = form.querySelector('.bundle-option__radio:checked');
-
-    // No option selectors present — fall back to direct variant ID on radio
     var optionContainers = form.querySelectorAll('.variant-option');
-    if (optionContainers.length === 0 || bundleOptionName === '') {
+
+    // No variant option pills — use variant ID stored directly on the radio
+    if (optionContainers.length === 0) {
       if (checkedRadio && checkedRadio.dataset.variantId) {
         variantInput.value = checkedRadio.dataset.variantId;
       }
       return;
     }
 
+    // Variant option pills present — find matching variant from product JSON
     var data = getProductData(form);
     if (!data) return;
 
