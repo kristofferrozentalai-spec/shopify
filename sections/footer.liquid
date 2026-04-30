@@ -1,3 +1,16 @@
+<style>
+  .site-footer {
+    background: {{ section.settings.bg_color }};
+    color: {{ section.settings.text_color }};
+  }
+  .site-footer__logo,
+  .site-footer__link,
+  .site-footer__tagline,
+  .site-footer__bottom p {
+    color: {{ section.settings.text_color }};
+  }
+</style>
+
 <footer class="site-footer">
   <div class="site-footer__inner container">
     <div class="site-footer__brand">
@@ -21,6 +34,18 @@
 {
   "name": "Footer",
   "settings": [
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#1a3a2a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
     {
       "type": "text",
       "id": "tagline",
