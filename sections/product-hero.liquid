@@ -150,36 +150,38 @@
       >
 
         {%- comment -%} Color / variant selector — auto-populated from product variants with gallery sync {%- endcomment -%}
-        {%- assign is_default_title = false -%}
-        {%- if product != blank and product.options.size == 1 and product.options.first == 'Title' -%}
-          {%- assign is_default_title = true -%}
-        {%- endif -%}
-        {% if product != blank and is_default_title == false %}
-          <div class="color-selector">
-            <p class="color-selector__label">
-              {{ product.options.first | default: 'Variant' }}<span class="color-selector__current js-color-name"></span>
-            </p>
-            <div class="color-selector__pills">
-              {% for variant in product.variants %}
-                {%- assign v_img_idx = 0 -%}
-                {%- if variant.featured_image -%}
-                  {%- for image in product.images -%}
-                    {%- if image.id == variant.featured_image.id -%}
-                      {%- assign v_img_idx = forloop.index0 -%}
-                    {%- endif -%}
-                  {%- endfor -%}
-                {%- endif -%}
-                <button type="button"
-                  class="color-swatch{% if forloop.first %} is-selected{% endif %}"
-                  data-variant-id="{{ variant.id }}"
-                  data-image-index="{{ v_img_idx }}"
-                  data-label="{{ variant.title | escape }}"
-                  aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">
-                  {{ variant.title }}
-                </button>
-              {% endfor %}
+        {% if product != blank %}
+          {%- assign _hide_selector = false -%}
+          {%- if product.variants.size == 1 and product.variants.first.title == 'Default Title' -%}
+            {%- assign _hide_selector = true -%}
+          {%- endif -%}
+          {% unless _hide_selector %}
+            <div class="color-selector">
+              <p class="color-selector__label">
+                {{ product.options.first | default: 'Variant' }}<span class="color-selector__current js-color-name"></span>
+              </p>
+              <div class="color-selector__pills">
+                {% for variant in product.variants %}
+                  {%- assign v_img_idx = 0 -%}
+                  {%- if variant.featured_image -%}
+                    {%- for image in product.images -%}
+                      {%- if image.id == variant.featured_image.id -%}
+                        {%- assign v_img_idx = forloop.index0 -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endif -%}
+                  <button type="button"
+                    class="color-swatch{% if forloop.first %} is-selected{% endif %}"
+                    data-variant-id="{{ variant.id }}"
+                    data-image-index="{{ v_img_idx }}"
+                    data-label="{{ variant.title | escape }}"
+                    aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">
+                    {{ variant.title }}
+                  </button>
+                {% endfor %}
+              </div>
             </div>
-          </div>
+          {% endunless %}
         {% endif %}
 
         <div class="bundle-options" role="radiogroup" aria-label="Choose your bundle">
