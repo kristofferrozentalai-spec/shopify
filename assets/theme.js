@@ -311,7 +311,7 @@
       var variantInput = form.querySelector('#selected-variant-id');
       if (variantInput) variantInput.value = swatch.dataset.variantId || '';
 
-      if (nameEl) nameEl.textContent = ' — ' + (swatch.dataset.label || swatch.textContent.trim());
+      if (nameEl) nameEl.textContent = swatch.dataset.label || swatch.textContent.trim();
 
       var imgIdx = parseInt(swatch.dataset.imageIndex, 10);
       if (!isNaN(imgIdx) && GalleryGoTo) GalleryGoTo(imgIdx);

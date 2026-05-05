@@ -343,6 +343,15 @@ ul { list-style: none; }
 .product-purchase__promo strong { font-weight: 700; }
 
 /* ── BUNDLE OPTIONS ── */
+.bundle-section-label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--color-text);
+  margin-bottom: 10px;
+}
+
 .bundle-options {
   display: flex;
   flex-direction: column;

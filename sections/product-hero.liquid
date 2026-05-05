@@ -1,42 +1,21 @@
 {% assign product = section.settings.product %}
 
-{%- comment -%}
-  Pre-resolve each bundle's Shopify variant from the product by index.
-  Bundle index is 1-based in settings (1 = first variant, 2 = second, etc.).
-  Falls back gracefully if the product has fewer variants than configured.
-{%- endcomment -%}
-{% assign b1_idx = section.settings.bundle_1_variant_index | minus: 1 %}
-{% assign b2_idx = section.settings.bundle_2_variant_index | minus: 1 %}
-{% assign b3_idx = section.settings.bundle_3_variant_index | minus: 1 %}
-{% assign ot_idx = section.settings.one_time_variant_index | minus: 1 %}
-
-{% if product != blank %}
-  {% assign b1_variant = product.variants[b1_idx] %}
-  {% assign b2_variant = product.variants[b2_idx] %}
-  {% assign b3_variant = product.variants[b3_idx] %}
-  {% assign ot_variant = product.variants[ot_idx] %}
-  {%- comment -%} Default hidden input = first product variant (color swatch will override on load) {%- endcomment -%}
-  {% assign default_variant_id = product.variants.first.id %}
-{% else %}
-  {% assign default_variant_id = '' %}
-{% endif %}
-
 <style>
   #product-hero-{{ section.id }} {
-    --bundle-card-bg:              {{ section.settings.bundle_card_bg }};
-    --bundle-card-selected-bg:     {{ section.settings.bundle_card_selected_bg }};
-    --bundle-card-border:          {{ section.settings.bundle_card_border_color }};
-    --bundle-card-selected-border: {{ section.settings.bundle_card_selected_color }};
-    --bundle-card-radius:          {{ section.settings.bundle_card_radius }}px;
-    --bundle-card-padding:         {{ section.settings.bundle_card_padding }}px;
-    --gallery-columns:             {{ section.settings.gallery_column_width }};
-    --purchase-columns:            {{ section.settings.purchase_column_width }};
+    --card-bg:              {{ section.settings.bundle_card_bg }};
+    --card-selected-bg:     {{ section.settings.bundle_card_selected_bg }};
+    --card-border:          {{ section.settings.bundle_card_border_color }};
+    --card-selected-border: {{ section.settings.bundle_card_selected_color }};
+    --card-radius:          {{ section.settings.bundle_card_radius }}px;
+    --card-padding:         {{ section.settings.bundle_card_padding }}px;
+    --gallery-col:          {{ section.settings.gallery_column_width }};
+    --purchase-col:         {{ section.settings.purchase_column_width }};
   }
   #product-hero-{{ section.id }} .product-gallery__main {
     aspect-ratio: {{ section.settings.image_aspect_ratio }};
   }
   #product-hero-{{ section.id }} .product-hero__inner {
-    grid-template-columns: var(--gallery-columns) var(--purchase-columns);
+    grid-template-columns: var(--gallery-col) var(--purchase-col);
   }
   @media (max-width: 900px) {
     #product-hero-{{ section.id }} .product-hero__inner {
@@ -57,8 +36,7 @@
               <img
                 src="{{ image | image_url: width: 900 }}"
                 alt="{{ image.alt | default: product.title | escape }}"
-                width="900"
-                height="900"
+                width="900" height="900"
                 loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
                 class="product-gallery__image"
               >
@@ -90,8 +68,7 @@
               <img
                 src="{{ image | image_url: width: 120 }}"
                 alt="{{ image.alt | default: product.title | escape }}"
-                width="120"
-                height="120"
+                width="120" height="120"
                 loading="lazy"
               >
             </button>
@@ -103,34 +80,18 @@
     {%- comment -%} ── RIGHT: PURCHASE PANEL ── {%- endcomment -%}
     <div class="product-purchase" id="product-purchase">
 
-      {%- comment -%} Social proof {%- endcomment -%}
+      {%- comment -%} Reviews {%- endcomment -%}
       {% if section.settings.show_reviews %}
         <div class="product-purchase__reviews">
-          <div class="product-purchase__stars" aria-label="{{ section.settings.review_score }} out of 5 stars">
+          <div class="product-purchase__stars">
             {% assign full_stars = section.settings.review_score | floor %}
             {% for i in (1..5) %}
-              {% if i <= full_stars %}
-                <svg class="star star--full" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              {% else %}
-                <svg class="star star--empty" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              {% endif %}
+              <svg class="star{% if i <= full_stars %} star--full{% else %} star--empty{% endif %}" width="16" height="16" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
             {% endfor %}
           </div>
           <span class="product-purchase__review-count">{{ section.settings.review_count }} {{ section.settings.review_label }}</span>
-        </div>
-      {% endif %}
-
-      {%- comment -%} Product tabs {%- endcomment -%}
-      {% if section.settings.show_tabs and section.settings.tab_1_label != blank %}
-        <div class="product-tabs" role="tablist">
-          <button class="product-tab active" role="tab" aria-selected="true" data-tab="tab-1">
-            {{ section.settings.tab_1_label }}
-          </button>
-          {% if section.settings.tab_2_label != blank %}
-            <button class="product-tab" role="tab" aria-selected="false" data-tab="tab-2">
-              {{ section.settings.tab_2_label }}
-            </button>
-          {% endif %}
         </div>
       {% endif %}
 
@@ -139,33 +100,30 @@
         <div class="product-purchase__promo">{{ section.settings.promo_text }}</div>
       {% endif %}
 
-      {%- comment -%} Bundle / subscription options {%- endcomment -%}
-      <form
-        action="{{ routes.cart_add_url }}"
-        method="post"
-        class="product-form"
-        id="product-form"
-        data-bundle-option="{{ section.settings.bundle_option_name | escape }}"
-        novalidate
-      >
+      <form id="product-form" class="product-form" action="{{ routes.cart_add_url }}" method="post" novalidate>
 
-        {%- comment -%} Color / variant selector — auto-populated from product variants with gallery sync {%- endcomment -%}
+        {%- comment -%}
+          COLOR SWATCH SELECTOR
+          Auto-generated from product.variants.
+          Each swatch carries data-variant-id and data-image-index so JS can
+          update the hidden variant input AND jump the gallery image.
+        {%- endcomment -%}
         {% if product != blank %}
-          {%- assign _hide_selector = false -%}
+          {%- assign _is_default = false -%}
           {%- if product.variants.size == 1 and product.variants.first.title == 'Default Title' -%}
-            {%- assign _hide_selector = true -%}
+            {%- assign _is_default = true -%}
           {%- endif -%}
-          {% unless _hide_selector %}
+          {% unless _is_default %}
             <div class="color-selector">
               <p class="color-selector__label">
-                {{ product.options.first | default: 'Variant' }}<span class="color-selector__current js-color-name"></span>
+                {{ section.settings.color_label | default: 'Färg' }}: <span class="js-color-name"></span>
               </p>
               <div class="color-selector__pills">
                 {% for variant in product.variants %}
                   {%- assign v_img_idx = 0 -%}
                   {%- if variant.featured_image -%}
-                    {%- for image in product.images -%}
-                      {%- if image.id == variant.featured_image.id -%}
+                    {%- for img in product.images -%}
+                      {%- if img.id == variant.featured_image.id -%}
                         {%- assign v_img_idx = forloop.index0 -%}
                       {%- endif -%}
                     {%- endfor -%}
@@ -184,220 +142,116 @@
           {% endunless %}
         {% endif %}
 
-        <div class="bundle-options" role="radiogroup" aria-label="Choose your bundle">
+        {%- comment -%}
+          QUANTITY BUNDLE SELECTOR
+          Each card sets how many units are added to cart (data-quantity).
+          Color is selected independently via the swatches above.
+        {%- endcomment -%}
+        {% if section.settings.bundle_heading != blank %}
+          <p class="bundle-section-label">{{ section.settings.bundle_heading }}</p>
+        {% endif %}
 
-          {%- comment -%}
-            Bundle 1
-          {%- endcomment -%}
-          {% if section.settings.bundle_1_enabled and section.settings.bundle_1_label != blank %}
-            {%- assign b1_vid = b1_variant.id | default: '' -%}
-            <label class="bundle-option bundle-option--selected" data-bundle="1">
-              <input type="radio" name="bundle_choice" value="1"
-                data-variant-id="{{ b1_vid }}"
-                data-option-value="{{ section.settings.bundle_1_option_value | escape }}"
-                data-quantity="{{ section.settings.bundle_1_quantity | default: 1 }}"
-                checked
-                class="bundle-option__radio">
-              <div class="bundle-option__inner">
-                <div class="bundle-option__header">
-                  <div class="bundle-option__radio-indicator"></div>
-                  <div class="bundle-option__title-group">
-                    <span class="bundle-option__label">{{ section.settings.bundle_1_label }}</span>
-                    {% if section.settings.bundle_1_badge != blank and section.settings.bundle_1_badge_show %}
-                      <span class="bundle-option__badge" style="background:{{ section.settings.bundle_1_badge_bg }};color:{{ section.settings.bundle_1_badge_text_color }};border-radius:{{ section.settings.bundle_1_badge_radius }}px;">{{ section.settings.bundle_1_badge }}</span>
-                    {% endif %}
-                  </div>
-                  <div class="bundle-option__pricing">
-                    {% if section.settings.bundle_1_original_price != blank %}
-                      <span class="bundle-option__original-price">{{ section.settings.bundle_1_original_price }}</span>
-                    {% endif %}
-                    <span class="bundle-option__price">
-                      {% if section.settings.bundle_1_price != blank %}
-                        {{ section.settings.bundle_1_price }}
-                      {% elsif b1_variant %}
-                        {{ b1_variant.price | money }}
-                      {% endif %}
+        <div class="bundle-options" role="radiogroup" aria-label="Välj antal">
+
+          {%- comment -%} Bundle 1 — always shown {%- endcomment -%}
+          <label class="bundle-option bundle-option--selected" data-bundle="1">
+            <input type="radio" name="bundle_choice" value="1"
+              data-quantity="{{ section.settings.bundle_1_qty | default: 1 }}"
+              checked class="bundle-option__radio">
+            <div class="bundle-option__inner">
+              <div class="bundle-option__header">
+                <div class="bundle-option__radio-indicator"></div>
+                <div class="bundle-option__title-group">
+                  <span class="bundle-option__label">{{ section.settings.bundle_1_label | default: 'Köp 1' }}</span>
+                  {% if section.settings.bundle_1_badge != blank %}
+                    <span class="bundle-option__badge"
+                      style="background:{{ section.settings.bundle_1_badge_bg }};color:{{ section.settings.bundle_1_badge_color }};">
+                      {{ section.settings.bundle_1_badge }}
                     </span>
-                  </div>
+                  {% endif %}
                 </div>
-                {% if section.settings.bundle_1_sublabel != blank or section.settings.bundle_1_unit_price != blank %}
-                  <div class="bundle-option__meta">
-                    <span class="bundle-option__sublabel">{{ section.settings.bundle_1_sublabel }}</span>
-                    {% if section.settings.bundle_1_unit_price != blank %}
-                      <span class="bundle-option__unit-price">{{ section.settings.bundle_1_unit_price }}</span>
-                    {% endif %}
-                  </div>
-                {% endif %}
-                {% if section.settings.bundle_1_perks != blank %}
-                  <ul class="bundle-option__perks">
-                    {% assign perks_list = section.settings.bundle_1_perks | split: '|' %}
-                    {% for perk in perks_list %}
-                      {% unless perk == blank %}
-                        <li class="bundle-option__perk">
-                          <svg class="perk-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                          {{ perk | strip }}
-                        </li>
-                      {% endunless %}
-                    {% endfor %}
-                  </ul>
-                {% endif %}
+                <div class="bundle-option__pricing">
+                  {% if section.settings.bundle_1_original != blank %}
+                    <span class="bundle-option__original-price">{{ section.settings.bundle_1_original }}</span>
+                  {% endif %}
+                  <span class="bundle-option__price">{{ section.settings.bundle_1_price }}</span>
+                </div>
               </div>
-            </label>
-          {% endif %}
+            </div>
+          </label>
 
-          {%- comment -%}
-            Bundle 2
-          {%- endcomment -%}
-          {% if section.settings.bundle_2_enabled and section.settings.bundle_2_label != blank %}
-            {%- assign b2_vid = b2_variant.id | default: '' -%}
+          {%- comment -%} Bundle 2 — shown when label is set {%- endcomment -%}
+          {% if section.settings.bundle_2_label != blank %}
             <label class="bundle-option" data-bundle="2">
               <input type="radio" name="bundle_choice" value="2"
-                data-variant-id="{{ b2_vid }}"
-                data-option-value="{{ section.settings.bundle_2_option_value | escape }}"
-                data-quantity="{{ section.settings.bundle_2_quantity | default: 2 }}"
+                data-quantity="{{ section.settings.bundle_2_qty | default: 2 }}"
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
                 <div class="bundle-option__header">
                   <div class="bundle-option__radio-indicator"></div>
                   <div class="bundle-option__title-group">
                     <span class="bundle-option__label">{{ section.settings.bundle_2_label }}</span>
-                    {% if section.settings.bundle_2_badge != blank and section.settings.bundle_2_badge_show %}
-                      <span class="bundle-option__badge" style="background:{{ section.settings.bundle_2_badge_bg }};color:{{ section.settings.bundle_2_badge_text_color }};border-radius:{{ section.settings.bundle_2_badge_radius }}px;">{{ section.settings.bundle_2_badge }}</span>
+                    {% if section.settings.bundle_2_badge != blank %}
+                      <span class="bundle-option__badge"
+                        style="background:{{ section.settings.bundle_2_badge_bg }};color:{{ section.settings.bundle_2_badge_color }};">
+                        {{ section.settings.bundle_2_badge }}
+                      </span>
                     {% endif %}
                   </div>
                   <div class="bundle-option__pricing">
-                    {% if section.settings.bundle_2_original_price != blank %}
-                      <span class="bundle-option__original-price">{{ section.settings.bundle_2_original_price }}</span>
+                    {% if section.settings.bundle_2_original != blank %}
+                      <span class="bundle-option__original-price">{{ section.settings.bundle_2_original }}</span>
                     {% endif %}
-                    <span class="bundle-option__price">
-                      {% if section.settings.bundle_2_price != blank %}
-                        {{ section.settings.bundle_2_price }}
-                      {% elsif b2_variant %}
-                        {{ b2_variant.price | money }}
-                      {% endif %}
-                    </span>
+                    <span class="bundle-option__price">{{ section.settings.bundle_2_price }}</span>
                   </div>
                 </div>
-                {% if section.settings.bundle_2_sublabel != blank or section.settings.bundle_2_unit_price != blank %}
-                  <div class="bundle-option__meta">
-                    <span class="bundle-option__sublabel">{{ section.settings.bundle_2_sublabel }}</span>
-                    {% if section.settings.bundle_2_unit_price != blank %}
-                      <span class="bundle-option__unit-price">{{ section.settings.bundle_2_unit_price }}</span>
-                    {% endif %}
-                  </div>
-                {% endif %}
-                {% if section.settings.bundle_2_perks != blank %}
-                  <ul class="bundle-option__perks">
-                    {% assign perks_list = section.settings.bundle_2_perks | split: '|' %}
-                    {% for perk in perks_list %}
-                      {% unless perk == blank %}
-                        <li class="bundle-option__perk">
-                          <svg class="perk-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                          {{ perk | strip }}
-                        </li>
-                      {% endunless %}
-                    {% endfor %}
-                  </ul>
-                {% endif %}
               </div>
             </label>
           {% endif %}
 
-          {%- comment -%}
-            Bundle 3
-          {%- endcomment -%}
-          {% if section.settings.bundle_3_enabled and section.settings.bundle_3_label != blank %}
-            {%- assign b3_vid = b3_variant.id | default: '' -%}
+          {%- comment -%} Bundle 3 — shown when label is set, optional divider above {%- endcomment -%}
+          {% if section.settings.bundle_3_label != blank %}
+            {% if section.settings.bundle_3_show_divider %}
+              <div class="bundle-divider">
+                <span>{{ section.settings.bundle_3_divider_text | default: 'ELLER' }}</span>
+              </div>
+            {% endif %}
             <label class="bundle-option" data-bundle="3">
               <input type="radio" name="bundle_choice" value="3"
-                data-variant-id="{{ b3_vid }}"
-                data-option-value="{{ section.settings.bundle_3_option_value | escape }}"
-                data-quantity="{{ section.settings.bundle_3_quantity | default: 3 }}"
+                data-quantity="{{ section.settings.bundle_3_qty | default: 3 }}"
                 class="bundle-option__radio">
               <div class="bundle-option__inner">
                 <div class="bundle-option__header">
                   <div class="bundle-option__radio-indicator"></div>
                   <div class="bundle-option__title-group">
                     <span class="bundle-option__label">{{ section.settings.bundle_3_label }}</span>
-                    {% if section.settings.bundle_3_badge != blank and section.settings.bundle_3_badge_show %}
-                      <span class="bundle-option__badge" style="background:{{ section.settings.bundle_3_badge_bg }};color:{{ section.settings.bundle_3_badge_text_color }};border-radius:{{ section.settings.bundle_3_badge_radius }}px;">{{ section.settings.bundle_3_badge }}</span>
+                    {% if section.settings.bundle_3_badge != blank %}
+                      <span class="bundle-option__badge"
+                        style="background:{{ section.settings.bundle_3_badge_bg }};color:{{ section.settings.bundle_3_badge_color }};">
+                        {{ section.settings.bundle_3_badge }}
+                      </span>
                     {% endif %}
                   </div>
                   <div class="bundle-option__pricing">
-                    {% if section.settings.bundle_3_original_price != blank %}
-                      <span class="bundle-option__original-price">{{ section.settings.bundle_3_original_price }}</span>
+                    {% if section.settings.bundle_3_original != blank %}
+                      <span class="bundle-option__original-price">{{ section.settings.bundle_3_original }}</span>
                     {% endif %}
-                    <span class="bundle-option__price">
-                      {% if section.settings.bundle_3_price != blank %}
-                        {{ section.settings.bundle_3_price }}
-                      {% elsif b3_variant %}
-                        {{ b3_variant.price | money }}
-                      {% endif %}
-                    </span>
+                    <span class="bundle-option__price">{{ section.settings.bundle_3_price }}</span>
                   </div>
                 </div>
-                {% if section.settings.bundle_3_sublabel != blank or section.settings.bundle_3_unit_price != blank %}
-                  <div class="bundle-option__meta">
-                    <span class="bundle-option__sublabel">{{ section.settings.bundle_3_sublabel }}</span>
-                    {% if section.settings.bundle_3_unit_price != blank %}
-                      <span class="bundle-option__unit-price">{{ section.settings.bundle_3_unit_price }}</span>
-                    {% endif %}
-                  </div>
-                {% endif %}
-              </div>
-            </label>
-          {% endif %}
-
-          {%- comment -%} — One-time purchase divider — {%- endcomment -%}
-          {% if section.settings.show_one_time %}
-            {%- assign ot_vid = ot_variant.id | default: '' -%}
-            <div class="bundle-divider">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-              <span>{{ section.settings.divider_text | default: 'OR' }}</span>
-            </div>
-
-            <label class="bundle-option bundle-option--one-time" data-bundle="one-time">
-              <input type="radio" name="bundle_choice" value="one-time"
-                data-variant-id="{{ ot_vid }}"
-                data-option-value="{{ section.settings.one_time_option_value | escape }}"
-                data-quantity="1"
-                class="bundle-option__radio">
-              <div class="bundle-option__inner">
-                <div class="bundle-option__header">
-                  <div class="bundle-option__radio-indicator"></div>
-                  <span class="bundle-option__label">{{ section.settings.one_time_label | default: 'One-time purchase' }}</span>
-                  <div class="bundle-option__pricing">
-                    <span class="bundle-option__price">
-                      {% if section.settings.one_time_price != blank %}
-                        {{ section.settings.one_time_price }}
-                      {% elsif ot_variant %}
-                        {{ ot_variant.price | money }}
-                      {% endif %}
-                    </span>
-                  </div>
-                </div>
-                {% if section.settings.one_time_unit_price != blank %}
-                  <div class="bundle-option__meta">
-                    <span class="bundle-option__unit-price">{{ section.settings.one_time_unit_price }}</span>
-                  </div>
-                {% endif %}
               </div>
             </label>
           {% endif %}
 
         </div><!-- /.bundle-options -->
 
-        {%- comment -%} Hidden input updated by JS on radio/option change {%- endcomment -%}
-        <input type="hidden" name="id" id="selected-variant-id" value="{{ default_variant_id }}">
-        <input type="hidden" name="quantity" value="1">
+        {%- comment -%} Variant ID updated by JS when color swatch is clicked {%- endcomment -%}
+        <input type="hidden" name="id" id="selected-variant-id"
+          value="{% if product != blank %}{{ product.variants.first.id }}{% endif %}">
 
-        <button
-          type="submit"
-          class="btn-add-to-cart"
-          id="add-to-cart-btn"
-          {% if product != blank and product.available == false %}disabled{% endif %}
-        >
-          {{ section.settings.cta_text | default: 'Subscribe now' }}
+        <button type="submit" id="add-to-cart-btn" class="btn-add-to-cart"
+          {% if product != blank and product.available == false %}disabled{% endif %}>
+          {{ section.settings.cta_text | default: 'Lägg i kundvagn' }}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
 
@@ -412,6 +266,12 @@
             <span class="product-trust__item">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               {{ section.settings.trust_2 }}
+            </span>
+          {% endif %}
+          {% if section.settings.trust_3 != blank %}
+            <span class="product-trust__item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ section.settings.trust_3 }}
             </span>
           {% endif %}
         </div>
@@ -441,62 +301,20 @@
       "label": "Product"
     },
     {
-      "type": "paragraph",
-      "content": "Make sure your product has variants set up in Shopify (e.g. 'Single', 'Double', 'One-Time'). Then map each bundle below to the correct variant by number (1 = first variant, 2 = second, etc.)."
-    },
-    {
       "type": "header",
-      "content": "Product options (color, size, etc.)"
-    },
-    {
-      "type": "paragraph",
-      "content": "If your product has options like Color or Size, set the option name that represents your bundles below. The other options will appear as selectors on the page."
-    },
-    {
-      "type": "text",
-      "id": "bundle_option_name",
-      "label": "Bundle option name",
-      "info": "Exact name of the option that controls bundles/quantities (e.g. 'Pack size'). Leave blank if your product only has one option type.",
-      "default": ""
-    },
-    {
-      "type": "text",
-      "id": "bundle_1_option_value",
-      "label": "Bundle 1 — option value",
-      "info": "The value of the above option that maps to Bundle 1 (e.g. '1-pack', 'Single')"
-    },
-    {
-      "type": "text",
-      "id": "bundle_2_option_value",
-      "label": "Bundle 2 — option value",
-      "info": "e.g. '2-pack', 'Double'"
-    },
-    {
-      "type": "text",
-      "id": "bundle_3_option_value",
-      "label": "Bundle 3 — option value"
-    },
-    {
-      "type": "text",
-      "id": "one_time_option_value",
-      "label": "One-time — option value"
-    },
-    {
-      "type": "header",
-      "content": "Image size"
+      "content": "Image"
     },
     {
       "type": "select",
       "id": "gallery_column_width",
       "label": "Image column width",
-      "info": "How much horizontal space the image takes vs the purchase panel",
       "options": [
-        { "value": "1fr",   "label": "Small (equal split)" },
-        { "value": "1.1fr", "label": "Slightly larger" },
-        { "value": "1.25fr","label": "Medium-large" },
-        { "value": "1.5fr", "label": "Large" },
-        { "value": "1.75fr","label": "Extra large" },
-        { "value": "2fr",   "label": "2× purchase panel" }
+        { "value": "1fr",    "label": "Equal split" },
+        { "value": "1.1fr",  "label": "Slightly larger" },
+        { "value": "1.25fr", "label": "Medium-large" },
+        { "value": "1.5fr",  "label": "Large" },
+        { "value": "1.75fr", "label": "Extra large" },
+        { "value": "2fr",    "label": "2× purchase panel" }
       ],
       "default": "1fr"
     },
@@ -504,12 +322,11 @@
       "type": "select",
       "id": "purchase_column_width",
       "label": "Purchase panel width",
-      "info": "How much horizontal space the purchase panel takes",
       "options": [
-        { "value": "1fr",   "label": "Equal (matches image)" },
-        { "value": "1.1fr", "label": "Slightly wider" },
-        { "value": "1.25fr","label": "Medium-wide" },
-        { "value": "1.5fr", "label": "Wide" }
+        { "value": "1fr",    "label": "Equal" },
+        { "value": "1.1fr",  "label": "Slightly wider" },
+        { "value": "1.25fr", "label": "Medium-wide" },
+        { "value": "1.5fr",  "label": "Wide" }
       ],
       "default": "1fr"
     },
@@ -521,9 +338,8 @@
         { "value": "1 / 1",  "label": "Square (1:1)" },
         { "value": "4 / 5",  "label": "Portrait (4:5)" },
         { "value": "3 / 4",  "label": "Tall portrait (3:4)" },
-        { "value": "2 / 3",  "label": "Extra tall (2:3)" },
         { "value": "5 / 4",  "label": "Landscape (5:4)" },
-        { "value": "4 / 3",  "label": "Wide landscape (4:3)" },
+        { "value": "4 / 3",  "label": "Wide (4:3)" },
         { "value": "16 / 9", "label": "Widescreen (16:9)" }
       ],
       "default": "1 / 1"
@@ -542,58 +358,251 @@
       "type": "range",
       "id": "review_score",
       "label": "Star rating",
-      "min": 1,
-      "max": 5,
-      "step": 1,
+      "min": 1, "max": 5, "step": 1,
       "default": 5
     },
     {
       "type": "text",
       "id": "review_count",
       "label": "Review count",
-      "default": "50,000+"
+      "default": "2 400+"
     },
     {
       "type": "text",
       "id": "review_label",
       "label": "Review label",
-      "default": "5-star reviews"
+      "default": "nöjda kunder"
     },
     {
       "type": "header",
-      "content": "Product Tabs"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_tabs",
-      "label": "Show product tabs",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "tab_1_label",
-      "label": "Tab 1 label",
-      "default": "The Pouch"
-    },
-    {
-      "type": "text",
-      "id": "tab_2_label",
-      "label": "Tab 2 label",
-      "default": "Travel Packs"
-    },
-    {
-      "type": "header",
-      "content": "Promo Text"
+      "content": "Promo text"
     },
     {
       "type": "richtext",
       "id": "promo_text",
       "label": "Promotional text",
-      "default": "<p><strong>Only 90 days until summer:</strong> Try our product now \u2013 get 10% off your first 3 months, plus 5 Travel Packs and a Welcome Kit FREE, worth $95.**</p>"
+      "info": "Shown above the bundles"
     },
     {
       "type": "header",
-      "content": "Bundle card style"
+      "content": "Color selector"
+    },
+    {
+      "type": "text",
+      "id": "color_label",
+      "label": "Label",
+      "default": "Färg",
+      "info": "Shown as 'Färg: Matcha green' above the swatches"
+    },
+    {
+      "type": "header",
+      "content": "Bundle heading"
+    },
+    {
+      "type": "text",
+      "id": "bundle_heading",
+      "label": "Heading above bundles",
+      "default": "Välj antal"
+    },
+    {
+      "type": "header",
+      "content": "Bundle 1"
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_label",
+      "label": "Label",
+      "default": "Köp 1"
+    },
+    {
+      "type": "range",
+      "id": "bundle_1_qty",
+      "label": "Quantity added to cart",
+      "min": 1, "max": 20, "step": 1,
+      "default": 1
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_price",
+      "label": "Price",
+      "default": "300 kr"
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_original",
+      "label": "Original price (crossed out)",
+      "info": "Leave blank to hide"
+    },
+    {
+      "type": "text",
+      "id": "bundle_1_badge",
+      "label": "Badge text",
+      "default": "FRI FRAKT",
+      "info": "Leave blank to hide badge"
+    },
+    {
+      "type": "color",
+      "id": "bundle_1_badge_bg",
+      "label": "Badge background",
+      "default": "#4ade80"
+    },
+    {
+      "type": "color",
+      "id": "bundle_1_badge_color",
+      "label": "Badge text color",
+      "default": "#0a2a16"
+    },
+    {
+      "type": "header",
+      "content": "Bundle 2"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_label",
+      "label": "Label",
+      "default": "Köp 2",
+      "info": "Leave blank to hide this bundle"
+    },
+    {
+      "type": "range",
+      "id": "bundle_2_qty",
+      "label": "Quantity added to cart",
+      "min": 1, "max": 20, "step": 1,
+      "default": 2
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_price",
+      "label": "Price",
+      "default": "600 kr"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_original",
+      "label": "Original price (crossed out)",
+      "info": "Leave blank to hide"
+    },
+    {
+      "type": "text",
+      "id": "bundle_2_badge",
+      "label": "Badge text",
+      "default": "BEST VALUE",
+      "info": "Leave blank to hide badge"
+    },
+    {
+      "type": "color",
+      "id": "bundle_2_badge_bg",
+      "label": "Badge background",
+      "default": "#4ade80"
+    },
+    {
+      "type": "color",
+      "id": "bundle_2_badge_color",
+      "label": "Badge text color",
+      "default": "#0a2a16"
+    },
+    {
+      "type": "header",
+      "content": "Bundle 3"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_label",
+      "label": "Label",
+      "default": "Köp 3 betala för 2",
+      "info": "Leave blank to hide this bundle"
+    },
+    {
+      "type": "range",
+      "id": "bundle_3_qty",
+      "label": "Quantity added to cart",
+      "min": 1, "max": 20, "step": 1,
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_price",
+      "label": "Price",
+      "default": "600 kr"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_original",
+      "label": "Original price (crossed out)",
+      "default": "900 kr"
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_badge",
+      "label": "Badge text",
+      "default": "SPARA 33%",
+      "info": "Leave blank to hide badge"
+    },
+    {
+      "type": "color",
+      "id": "bundle_3_badge_bg",
+      "label": "Badge background",
+      "default": "#4ade80"
+    },
+    {
+      "type": "color",
+      "id": "bundle_3_badge_color",
+      "label": "Badge text color",
+      "default": "#0a2a16"
+    },
+    {
+      "type": "checkbox",
+      "id": "bundle_3_show_divider",
+      "label": "Show divider above bundle 3",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "bundle_3_divider_text",
+      "label": "Divider text",
+      "default": "ELLER"
+    },
+    {
+      "type": "header",
+      "content": "CTA button"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Button text",
+      "default": "Lägg i kundvagn"
+    },
+    {
+      "type": "header",
+      "content": "Trust badges"
+    },
+    {
+      "type": "text",
+      "id": "trust_1",
+      "label": "Trust badge 1",
+      "default": "Fri frakt"
+    },
+    {
+      "type": "text",
+      "id": "trust_2",
+      "label": "Trust badge 2",
+      "default": "30 dagars öppet köp"
+    },
+    {
+      "type": "text",
+      "id": "trust_3",
+      "label": "Trust badge 3",
+      "info": "Leave blank to hide"
+    },
+    {
+      "type": "textarea",
+      "id": "legal_text",
+      "label": "Legal text",
+      "info": "Small print below trust badges"
+    },
+    {
+      "type": "header",
+      "content": "Card style"
     },
     {
       "type": "color",
@@ -616,485 +625,22 @@
     {
       "type": "color",
       "id": "bundle_card_selected_color",
-      "label": "Selected card border / ring color",
+      "label": "Selected card border color",
       "default": "#1a3a2a"
     },
     {
       "type": "range",
       "id": "bundle_card_radius",
       "label": "Card corner radius (px)",
-      "min": 0,
-      "max": 32,
-      "step": 2,
+      "min": 0, "max": 32, "step": 2,
       "default": 12
     },
     {
       "type": "range",
       "id": "bundle_card_padding",
-      "label": "Card inner padding (px)",
-      "min": 8,
-      "max": 40,
-      "step": 2,
+      "label": "Card padding (px)",
+      "min": 8, "max": 40, "step": 2,
       "default": 16
-    },
-    {
-      "type": "header",
-      "content": "Bundle 1 (Subscription)"
-    },
-    {
-      "type": "checkbox",
-      "id": "bundle_1_enabled",
-      "label": "Enable bundle 1",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "bundle_1_variant_index",
-      "label": "Product variant number",
-      "info": "Which variant of your product is this bundle? (1 = first variant)",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 1
-    },
-    {
-      "type": "text",
-      "id": "bundle_1_label",
-      "label": "Label",
-      "default": "Single subscription"
-    },
-    {
-      "type": "text",
-      "id": "bundle_1_sublabel",
-      "label": "Sub-label",
-      "default": "30 servings per pouch."
-    },
-    {
-      "type": "checkbox",
-      "id": "bundle_1_badge_show",
-      "label": "Show badge",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "bundle_1_badge",
-      "label": "Badge text",
-      "default": "Most popular"
-    },
-    {
-      "type": "color",
-      "id": "bundle_1_badge_bg",
-      "label": "Badge background color",
-      "default": "#4ade80"
-    },
-    {
-      "type": "color",
-      "id": "bundle_1_badge_text_color",
-      "label": "Badge text color",
-      "default": "#0a2a16"
-    },
-    {
-      "type": "range",
-      "id": "bundle_1_badge_radius",
-      "label": "Badge corner radius (px)",
-      "min": 0,
-      "max": 50,
-      "step": 2,
-      "default": 50
-    },
-    {
-      "type": "text",
-      "id": "bundle_1_price",
-      "label": "Display price (leave blank to use Shopify price)",
-      "default": "$78.80"
-    },
-    {
-      "type": "text",
-      "id": "bundle_1_original_price",
-      "label": "Original price (crossed out)",
-      "default": "$87\u2020"
-    },
-    {
-      "type": "text",
-      "id": "bundle_1_unit_price",
-      "label": "Unit price",
-      "default": "$2.90 / serving"
-    },
-    {
-      "type": "range",
-      "id": "bundle_1_quantity",
-      "label": "Quantity added to cart",
-      "info": "How many units this bundle adds to cart",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 1
-    },
-    {
-      "type": "textarea",
-      "id": "bundle_1_perks",
-      "label": "Perks list (separate with |)",
-      "default": "10% off your first 3 months**|Free Vitamin D3+K2 & 5 Travel Packs**|Free Welcome Kit on first order**|Free shipping on all orders**"
-    },
-    {
-      "type": "header",
-      "content": "Bundle 2"
-    },
-    {
-      "type": "checkbox",
-      "id": "bundle_2_enabled",
-      "label": "Enable bundle 2",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "bundle_2_variant_index",
-      "label": "Product variant number",
-      "info": "Which variant of your product is this bundle? (1 = first variant)",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 2
-    },
-    {
-      "type": "text",
-      "id": "bundle_2_label",
-      "label": "Label",
-      "default": "Double subscription"
-    },
-    {
-      "type": "text",
-      "id": "bundle_2_sublabel",
-      "label": "Sub-label",
-      "default": "60 servings total"
-    },
-    {
-      "type": "checkbox",
-      "id": "bundle_2_badge_show",
-      "label": "Show badge",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "bundle_2_badge",
-      "label": "Badge text",
-      "default": "Best value"
-    },
-    {
-      "type": "color",
-      "id": "bundle_2_badge_bg",
-      "label": "Badge background color",
-      "default": "#4ade80"
-    },
-    {
-      "type": "color",
-      "id": "bundle_2_badge_text_color",
-      "label": "Badge text color",
-      "default": "#0a2a16"
-    },
-    {
-      "type": "range",
-      "id": "bundle_2_badge_radius",
-      "label": "Badge corner radius (px)",
-      "min": 0,
-      "max": 50,
-      "step": 2,
-      "default": 50
-    },
-    {
-      "type": "text",
-      "id": "bundle_2_price",
-      "label": "Display price (leave blank to use Shopify price)",
-      "default": "$150.30"
-    },
-    {
-      "type": "text",
-      "id": "bundle_2_original_price",
-      "label": "Original price (crossed out)",
-      "default": "$167\u2020"
-    },
-    {
-      "type": "text",
-      "id": "bundle_2_unit_price",
-      "label": "Unit price",
-      "default": "$2.78 / serving"
-    },
-    {
-      "type": "range",
-      "id": "bundle_2_quantity",
-      "label": "Quantity added to cart",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 2
-    },
-    {
-      "type": "textarea",
-      "id": "bundle_2_perks",
-      "label": "Perks list (separate with |)"
-    },
-    {
-      "type": "header",
-      "content": "Bundle 3"
-    },
-    {
-      "type": "checkbox",
-      "id": "bundle_3_enabled",
-      "label": "Enable bundle 3",
-      "default": false
-    },
-    {
-      "type": "range",
-      "id": "bundle_3_variant_index",
-      "label": "Product variant number",
-      "info": "Which variant of your product is this bundle? (1 = first variant)",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 3
-    },
-    {
-      "type": "text",
-      "id": "bundle_3_label",
-      "label": "Label"
-    },
-    {
-      "type": "text",
-      "id": "bundle_3_sublabel",
-      "label": "Sub-label"
-    },
-    {
-      "type": "checkbox",
-      "id": "bundle_3_badge_show",
-      "label": "Show badge",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "bundle_3_badge",
-      "label": "Badge text"
-    },
-    {
-      "type": "color",
-      "id": "bundle_3_badge_bg",
-      "label": "Badge background color",
-      "default": "#4ade80"
-    },
-    {
-      "type": "color",
-      "id": "bundle_3_badge_text_color",
-      "label": "Badge text color",
-      "default": "#0a2a16"
-    },
-    {
-      "type": "range",
-      "id": "bundle_3_badge_radius",
-      "label": "Badge corner radius (px)",
-      "min": 0,
-      "max": 50,
-      "step": 2,
-      "default": 50
-    },
-    {
-      "type": "text",
-      "id": "bundle_3_price",
-      "label": "Display price (leave blank to use Shopify price)"
-    },
-    {
-      "type": "text",
-      "id": "bundle_3_original_price",
-      "label": "Original price (crossed out)"
-    },
-    {
-      "type": "text",
-      "id": "bundle_3_unit_price",
-      "label": "Unit price"
-    },
-    {
-      "type": "range",
-      "id": "bundle_3_quantity",
-      "label": "Quantity added to cart",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 3
-    },
-    {
-      "type": "textarea",
-      "id": "bundle_3_perks",
-      "label": "Perks list (separate with |)"
-    },
-    {
-      "type": "header",
-      "content": "Color options"
-    },
-    {
-      "type": "paragraph",
-      "content": "Enable this to show a color / variant picker. Set each color's label, swatch, and map it to a product variant by number (1 = first variant, 2 = second, etc.)."
-    },
-    {
-      "type": "checkbox",
-      "id": "show_color_options",
-      "label": "Show color selector",
-      "default": false
-    },
-    {
-      "type": "text",
-      "id": "color_option_label",
-      "label": "Label above colors",
-      "default": "Color"
-    },
-    {
-      "type": "text",
-      "id": "color_1_label",
-      "label": "Color 1 — name",
-      "info": "e.g. Matcha green"
-    },
-    {
-      "type": "color",
-      "id": "color_1_swatch",
-      "label": "Color 1 — swatch",
-      "default": "#88c98e"
-    },
-    {
-      "type": "range",
-      "id": "color_1_variant_index",
-      "label": "Color 1 — variant number",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 1
-    },
-    {
-      "type": "text",
-      "id": "color_2_label",
-      "label": "Color 2 — name"
-    },
-    {
-      "type": "color",
-      "id": "color_2_swatch",
-      "label": "Color 2 — swatch",
-      "default": "#2a3a5a"
-    },
-    {
-      "type": "range",
-      "id": "color_2_variant_index",
-      "label": "Color 2 — variant number",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 2
-    },
-    {
-      "type": "text",
-      "id": "color_3_label",
-      "label": "Color 3 — name"
-    },
-    {
-      "type": "color",
-      "id": "color_3_swatch",
-      "label": "Color 3 — swatch",
-      "default": "#e8a0a0"
-    },
-    {
-      "type": "range",
-      "id": "color_3_variant_index",
-      "label": "Color 3 — variant number",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 3
-    },
-    {
-      "type": "text",
-      "id": "color_4_label",
-      "label": "Color 4 — name"
-    },
-    {
-      "type": "color",
-      "id": "color_4_swatch",
-      "label": "Color 4 — swatch",
-      "default": "#c0a080"
-    },
-    {
-      "type": "range",
-      "id": "color_4_variant_index",
-      "label": "Color 4 — variant number",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 4
-    },
-    {
-      "type": "header",
-      "content": "One-Time Purchase"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_one_time",
-      "label": "Show one-time purchase option",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "one_time_variant_index",
-      "label": "Product variant number",
-      "info": "Which variant of your product is the one-time purchase? (1 = first variant)",
-      "min": 1,
-      "max": 10,
-      "step": 1,
-      "default": 3
-    },
-    {
-      "type": "text",
-      "id": "divider_text",
-      "label": "Divider text",
-      "default": "OR"
-    },
-    {
-      "type": "text",
-      "id": "one_time_label",
-      "label": "One-time label",
-      "default": "One-time purchase"
-    },
-    {
-      "type": "text",
-      "id": "one_time_price",
-      "label": "Display price (leave blank to use Shopify price)",
-      "default": "$107"
-    },
-    {
-      "type": "text",
-      "id": "one_time_unit_price",
-      "label": "Unit price",
-      "default": "$3.57 / serving"
-    },
-    {
-      "type": "header",
-      "content": "CTA & Trust"
-    },
-    {
-      "type": "text",
-      "id": "cta_text",
-      "label": "CTA button text",
-      "default": "Subscribe now"
-    },
-    {
-      "type": "text",
-      "id": "trust_1",
-      "label": "Trust badge 1",
-      "default": "Flexible subscription"
-    },
-    {
-      "type": "text",
-      "id": "trust_2",
-      "label": "Trust badge 2",
-      "default": "30-day money-back guarantee"
-    },
-    {
-      "type": "textarea",
-      "id": "legal_text",
-      "label": "Legal / disclaimer text"
     }
   ],
   "presets": [
