@@ -89,11 +89,66 @@
         "bundle_card_radius": 0,
         "bundle_card_padding": 8
       }
+    },
+    "social_proof_9tpxwj": {
+      "type": "social-proof",
+      "blocks": {
+        "review_UFaCY7": {
+          "type": "review",
+          "settings": {
+            "stars": 5,
+            "verified": true,
+            "quote": "Helt fantastisk! Barnen lade ifrån sig mobilen direkt. Bästa köpet vi gjort.",
+            "name": "Anna L.",
+            "location": "Stockholm"
+          }
+        },
+        "review_dLBRHf": {
+          "type": "review",
+          "settings": {
+            "stars": 5,
+            "verified": true,
+            "quote": "Äntligen middagar utan mobiler. PAUS har förändrat vår familjestämning totalt.",
+            "name": "Erik S.",
+            "location": "Göteborg"
+          }
+        },
+        "review_4m3wLH": {
+          "type": "review",
+          "settings": {
+            "stars": 5,
+            "verified": true,
+            "quote": "Snyggt och enkelt. Fungerar perfekt som gåva – alla på jobbet ville ha en.",
+            "avatar": "shopify://shop_images/54D93B04-0881-4F81-BE15-1CE721382FBD_1_105_c.jpg",
+            "name": "Maria K.",
+            "location": "Malmö"
+          }
+        }
+      },
+      "block_order": [
+        "review_UFaCY7",
+        "review_dLBRHf",
+        "review_4m3wLH"
+      ],
+      "name": "Social Proof",
+      "settings": {
+        "subheading": "Vad våra kunder säger",
+        "heading": "Tusentals familjer har återtagit kontrollen",
+        "stat_1_number": "4.9 / 5",
+        "stat_1_label": "Genomsnittligt betyg",
+        "stat_2_number": "2 400+",
+        "stat_2_label": "Nöjda kunder",
+        "stat_3_number": "98%",
+        "stat_3_label": "Rekommenderar PAUS",
+        "bg_color": "#ffffff",
+        "accent_color": "#1a3a2a"
+      }
     }
   },
   "order": [
     "announcement",
     "image_banner_JVJKTj",
-    "product-hero"
+    "product-hero",
+    "social_proof_9tpxwj"
   ]
 }
