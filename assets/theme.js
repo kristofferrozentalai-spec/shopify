@@ -175,6 +175,8 @@
   /* ============================================
      IMAGE GALLERY
      ============================================ */
+  var GalleryGoTo = null;
+
   function initGallery() {
     var gallery = document.getElementById('product-gallery');
     if (!gallery) return;
@@ -198,6 +200,8 @@
         goTo(parseInt(thumb.dataset.index, 10));
       });
     });
+
+    GalleryGoTo = goTo; // expose for color swatch gallery sync
 
     if (prevBtn) prevBtn.addEventListener('click', function () { goTo(current - 1); });
     if (nextBtn) nextBtn.addEventListener('click', function () { goTo(current + 1); });
@@ -254,6 +258,9 @@
     var variantInput = form.querySelector('#selected-variant-id');
     if (!variantInput) return;
 
+    // Color swatch directly manages variant selection when present
+    if (form.querySelectorAll('.color-swatch').length > 0) return;
+
     var bundleOptionName = form.dataset.bundleOption || '';
     var checkedRadio = form.querySelector('.bundle-option__radio:checked');
     var optionContainers = form.querySelectorAll('.variant-option');
@@ -282,37 +289,43 @@
   }
 
   /* ============================================
-     COLOR / VARIANT SELECTOR
+     COLOR SWATCH SELECTOR (with gallery sync)
      ============================================ */
-  function initColorOptions() {
+  function initColorSwatch() {
     var form = document.getElementById('product-form');
     if (!form) return;
 
-    var pills = form.querySelectorAll('.color-option__pill');
-    if (!pills.length) return;
+    var swatches = form.querySelectorAll('.color-swatch');
+    if (!swatches.length) return;
 
-    function selectPill(pill) {
-      pills.forEach(function (p) {
-        p.classList.remove('is-selected');
-        p.setAttribute('aria-pressed', 'false');
+    var nameEl = form.querySelector('.js-color-name');
+
+    function selectSwatch(swatch) {
+      swatches.forEach(function (s) {
+        s.classList.remove('is-selected');
+        s.setAttribute('aria-pressed', 'false');
       });
-      pill.classList.add('is-selected');
-      pill.setAttribute('aria-pressed', 'true');
+      swatch.classList.add('is-selected');
+      swatch.setAttribute('aria-pressed', 'true');
 
       var variantInput = form.querySelector('#selected-variant-id');
-      if (variantInput) variantInput.value = pill.dataset.variantId || '';
+      if (variantInput) variantInput.value = swatch.dataset.variantId || '';
+
+      if (nameEl) nameEl.textContent = ' — ' + (swatch.dataset.label || swatch.textContent.trim());
+
+      var imgIdx = parseInt(swatch.dataset.imageIndex, 10);
+      if (!isNaN(imgIdx) && GalleryGoTo) GalleryGoTo(imgIdx);
 
       var btn = form.querySelector('#add-to-cart-btn');
-      if (btn) btn.disabled = !pill.dataset.variantId;
+      if (btn) btn.disabled = !swatch.dataset.variantId;
     }
 
-    pills.forEach(function (pill) {
-      pill.addEventListener('click', function () { selectPill(pill); });
+    swatches.forEach(function (swatch) {
+      swatch.addEventListener('click', function () { selectSwatch(swatch); });
     });
 
-    // Initialise from the first pill
-    var first = form.querySelector('.color-option__pill.is-selected') || pills[0];
-    if (first) selectPill(first);
+    var first = form.querySelector('.color-swatch.is-selected') || swatches[0];
+    if (first) selectSwatch(first);
   }
 
   /* ============================================
@@ -433,7 +446,7 @@
     CartDrawer.init();
     CartDrawer.refresh(); // prime count on load
     initGallery();
-    initColorOptions();
+    initColorSwatch();
     initBundleSelector();
     initVariantOptions();
     initTabs();

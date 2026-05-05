@@ -15,8 +15,8 @@
   {% assign b2_variant = product.variants[b2_idx] %}
   {% assign b3_variant = product.variants[b3_idx] %}
   {% assign ot_variant = product.variants[ot_idx] %}
-  {%- comment -%} Default hidden input = first enabled bundle variant {%- endcomment -%}
-  {% assign default_variant_id = b1_variant.id %}
+  {%- comment -%} Default hidden input = first product variant (color swatch will override on load) {%- endcomment -%}
+  {% assign default_variant_id = product.variants.first.id %}
 {% else %}
   {% assign default_variant_id = '' %}
 {% endif %}
@@ -149,33 +149,36 @@
         novalidate
       >
 
-        {%- comment -%} Variant option selectors (color, size, etc.) — auto-populated from product {%- endcomment -%}
-        {% if product != blank %}
-          <script id="product-data-{{ section.id }}" type="application/json">
-            {"variants":{{ product.variants | json }},"options":{{ product.options | json }}}
-          </script>
-          {%- assign bundle_opt_lower = section.settings.bundle_option_name | downcase | strip -%}
-          <div class="variant-options" id="variant-options-{{ section.id }}">
-            {% for option in product.options_with_values %}
-              {%- assign opt_lower = option.name | downcase | strip -%}
-              {%- assign skip = false -%}
-              {%- if bundle_opt_lower != blank and opt_lower == bundle_opt_lower -%}{%- assign skip = true -%}{%- endif -%}
-              {%- if option.name == 'Title' and option.values.first == 'Default Title' and option.values.size == 1 -%}{%- assign skip = true -%}{%- endif -%}
-              {% unless skip %}
-                <div class="variant-option" data-option-name="{{ option.name | escape }}" data-option-position="{{ forloop.index }}">
-                  <p class="variant-option__label">{{ option.name }}</p>
-                  <div class="variant-option__values">
-                    {% for value in option.values %}
-                      <button type="button"
-                        class="variant-option__pill{% if forloop.first %} is-selected{% endif %}"
-                        data-value="{{ value | escape }}"
-                        aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
-                      >{{ value }}</button>
-                    {% endfor %}
-                  </div>
-                </div>
-              {% endunless %}
-            {% endfor %}
+        {%- comment -%} Color / variant selector — auto-populated from product variants with gallery sync {%- endcomment -%}
+        {%- assign is_default_title = false -%}
+        {%- if product != blank and product.options.size == 1 and product.options.first == 'Title' -%}
+          {%- assign is_default_title = true -%}
+        {%- endif -%}
+        {% if product != blank and is_default_title == false %}
+          <div class="color-selector">
+            <p class="color-selector__label">
+              {{ product.options.first | default: 'Variant' }}<span class="color-selector__current js-color-name"></span>
+            </p>
+            <div class="color-selector__pills">
+              {% for variant in product.variants %}
+                {%- assign v_img_idx = 0 -%}
+                {%- if variant.featured_image -%}
+                  {%- for image in product.images -%}
+                    {%- if image.id == variant.featured_image.id -%}
+                      {%- assign v_img_idx = forloop.index0 -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+                <button type="button"
+                  class="color-swatch{% if forloop.first %} is-selected{% endif %}"
+                  data-variant-id="{{ variant.id }}"
+                  data-image-index="{{ v_img_idx }}"
+                  data-label="{{ variant.title | escape }}"
+                  aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">
+                  {{ variant.title }}
+                </button>
+              {% endfor %}
+            </div>
           </div>
         {% endif %}
 

@@ -1278,3 +1278,46 @@ body.cart-drawer-open { overflow: hidden; }
   border: 1px solid rgba(0,0,0,0.15);
   flex-shrink: 0;
 }
+
+/* ============================================
+   COLOR SWATCH SELECTOR (auto from variants)
+   ============================================ */
+.color-selector {
+  margin-bottom: 20px;
+}
+.color-selector__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 10px;
+  letter-spacing: .01em;
+}
+.color-selector__current {
+  font-weight: 400;
+  color: var(--color-muted, #666);
+}
+.color-selector__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.color-swatch {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  background: var(--color-bg-card, #fff);
+  border: 1.5px solid var(--color-border);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+.color-swatch:hover {
+  border-color: var(--color-text);
+}
+.color-swatch.is-selected {
+  background: var(--color-text);
+  color: #fff;
+  border-color: var(--color-text);
+}
