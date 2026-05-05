@@ -64,7 +64,7 @@
         "bundle_1_enabled": true,
         "bundle_1_variant_index": 1,
         "bundle_1_label": "Köp 1",
-        "bundle_1_sublabel": "{{ section.settings.product.metafields.shopify[\"color-pattern\"] | metafield_text: field: 'label' }}",
+        "bundle_1_sublabel": "",
         "bundle_1_badge_show": true,
         "bundle_1_badge": "Fri frakt",
         "bundle_1_badge_bg": "#4ade80",
