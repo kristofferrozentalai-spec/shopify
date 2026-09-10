@@ -1,7 +1,7 @@
 {
   "sections": {
     "main": {
-      "type": "fard-product",
+      "type": "fard-collection",
       "settings": {}
     }
   },
