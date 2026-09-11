@@ -23,7 +23,7 @@
     "q0": "Vad är persimmontvål?",
     "a0": "Persimmontvål är tvål med ingredienser från persimmonfrukten. Vi förbereder vår första produkt. Fullständig ingredienslista, doft och vikt publiceras när den slutliga formulan är bekräftad.",
     "q1": "Hjälper den mot åldersrelaterad kroppslukt?",
-    "a1": "KAKI utvecklas med fokus på daglig rengöring och fräschhet. Vi har ännu inte verifierat tester för den slutliga tvålen och lovar därför ingen särskild effekt mot åldersrelaterad kroppslukt eller 2-nonenal.",
+    "a1": "Persimmon kan vara intressant vid åldersrelaterad kroppslukt. En liten japansk studie av en tvål med polyfenoler från persimmon och flera sorters te rapporterade minskad 2-nonenal och luktintensitet. Studien testade inte KAKI eller persimmon ensamt. Vi kan därför ännu inte lova en sådan effekt för vår tvål.",
     "q2": "Passar den känslig hud?",
     "a2": "Vi kan inte bedöma det innan den slutliga ingredienslistan och produktinformationen är bekräftade. Läs alltid märkningen och välj rengöring som passar din hud.",
     "q3": "När kan jag beställa?",
@@ -99,6 +99,15 @@
     "questions_title_html": "Lite mindre<br>frågetecken.",
     "closing_title_html": "Börja dagen<br>med lite omtanke.",
     "product_close_html": "Din tvättrutin.<br>En stund för dig.",
-    "password_title_html": "Fräschhet börjar<br><em>med en liten ritual.</em>"
+    "password_title_html": "Fräschhet börjar<br><em>med en liten ritual.</em>",
+    "odor_kicker": "FRÄSCHHET I ALLA ÅLDRAR",
+    "odor_title_html": "När kroppens doft förändras.<br><em>En möjlig roll för persimmon.</em>",
+    "odor_intro": "Kroppens doft kan förändras med åren. För dig som märkt en skillnad är persimmon en ingrediens värd att lära känna — med lovande, men ännu begränsad forskning.",
+    "odor_why_title": "Vad är 2-nonenal?",
+    "odor_why": "När vissa fettsyror på hudens yta oxiderar kan ämnet 2-nonenal bildas. Det har kopplats till åldersrelaterade förändringar i kroppslukt. I en studie påvisades ämnet hos deltagare från 40 års ålder, men doft och hud förändras olika hos olika personer.",
+    "odor_help_title": "Vad säger forskningen?",
+    "odor_help": "En liten japansk studie med 20 män i åldern 43–75 år rapporterade mindre 2-nonenal och lägre luktintensitet efter fyra veckors daglig användning av en tvål med polyfenoler från persimmon och flera sorters te.",
+    "odor_limit": "Resultatet gäller den studerade blandningen. Det visar inte att persimmon ensamt ger samma effekt eller att KAKI neutraliserar 2-nonenal. Effekten och hudens tolerans behöver bedömas för den färdiga formulan.",
+    "odor_sources_html": "Läs studierna: <a class=\"link\" href=\"https://pubmed.ncbi.nlm.nih.gov/11286617/\">2-nonenal och åldrande (2001)</a> · <a class=\"link\" href=\"https://www.jstage.jst.go.jp/article/jao/43/5/43_362/_article/-char/en\">Tvål med polyfenolblandning (2012)</a>"
   }
 }
