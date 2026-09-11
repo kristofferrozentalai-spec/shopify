@@ -3,8 +3,8 @@
     "main": {
       "type": "fard-home",
       "settings": {
-        "hero": "shopify://shop_images/fard-hero.png",
-        "lifestyle": "shopify://shop_images/fard-lifestyle.png"
+        "hero": "shopify://shop_images/kaki-hero.png",
+        "lifestyle": "shopify://shop_images/kaki-lifestyle.png"
       }
     }
   },
