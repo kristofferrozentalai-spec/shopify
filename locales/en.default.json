@@ -108,6 +108,24 @@
     "odor_help_title": "Vad säger forskningen?",
     "odor_help": "En liten japansk studie med 20 män i åldern 43–75 år rapporterade mindre 2-nonenal och lägre luktintensitet efter fyra veckors daglig användning av en tvål med polyfenoler från persimmon och flera sorters te.",
     "odor_limit": "Resultatet gäller den studerade blandningen. Det visar inte att persimmon ensamt ger samma effekt eller att KAKI neutraliserar 2-nonenal. Effekten och hudens tolerans behöver bedömas för den färdiga formulan.",
-    "odor_sources_html": "Läs studierna: <a class=\"link\" href=\"https://pubmed.ncbi.nlm.nih.gov/11286617/\">2-nonenal och åldrande (2001)</a> · <a class=\"link\" href=\"https://www.jstage.jst.go.jp/article/jao/43/5/43_362/_article/-char/en\">Tvål med polyfenolblandning (2012)</a>"
+    "odor_sources_html": "Läs studierna: <a class=\"link\" href=\"https://pubmed.ncbi.nlm.nih.gov/11286617/\">2-nonenal och åldrande (2001)</a> · <a class=\"link\" href=\"https://www.jstage.jst.go.jp/article/jao/43/5/43_362/_article/-char/en\">Tvål med polyfenolblandning (2012)</a>",
+    "choose_purchase": "Välj hur du vill köpa",
+    "one_soap": "1 tvål",
+    "three_soaps": "3 tvålar",
+    "one_time": "Engångsköp",
+    "soap_unit": "tvål",
+    "one_copy": "Börja med en tvål till din dagliga ritual.",
+    "three_copy": "Tre tvålar i samma beställning. En till badrummet och två att ha på lager.",
+    "subscribe": "Prenumeration",
+    "sub_quantity": "1 tvål per leverans. Välj ditt leveransintervall nedan.",
+    "choose_plan": "Leveransplan och pris",
+    "first_delivery": "för första leveransen",
+    "initial_price": "Första leveransen",
+    "plan_price": "Prisperiod",
+    "recurring_notice": "Återkommande köp enligt vald plan. Läs leverans- och uppsägningsvillkoren innan du beställer. Frakt tillkommer enligt villkoren i kassan.",
+    "add_subscription": "Lägg till prenumeration",
+    "subscription_pending": "Få din tvål regelbundet. Pris, leveransintervall och villkor kommer före säljstart. Prenumeration går ännu inte att beställa.",
+    "sub_soon": "Prenumeration kommer snart",
+    "continue_shopping": "Fortsätt handla"
   }
 }
